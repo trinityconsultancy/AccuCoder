@@ -88,18 +88,58 @@ After deployment succeeds:
 
 ## Troubleshooting
 
+### If you get 404: NOT_FOUND error:
+This usually means the deployment hasn't been triggered or environment variables are missing.
+
+**Solution:**
+1. **Add ALL environment variables** in Vercel (see above)
+2. **Go to Vercel Dashboard** → Your Project → Deployments
+3. **Find the failed deployment** → Click ⋯ menu → **Redeploy**
+4. **Wait for build to complete** (check build logs for errors)
+5. **Alternative**: Push a new commit to trigger auto-deployment:
+   ```bash
+   git commit --allow-empty -m "Trigger Vercel deployment"
+   git push
+   ```
+
 ### If build still fails:
-1. Check that ALL 5 environment variables are added
+1. Check that ALL environment variables are added:
+   - `NEXT_PUBLIC_SUPABASE_URL`
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+   - `GROQ_API_KEY` (minimum required)
+   - `GROQ_API_KEY_2` (optional)
+   - `GROQ_API_KEY_3` (optional)
 2. Make sure variable names are EXACT (case-sensitive)
 3. No extra spaces in values
-4. Redeploy after adding variables
+4. Check build logs in Vercel for specific errors
+5. Verify `vercel.json` is in the repository
 
-### If data doesn't load:
+### If data doesn't load after successful deployment:
 1. Check Supabase RLS policies are set correctly
 2. Verify Supabase URL and key are correct
 3. Check browser console for errors
+4. Test Supabase connection from browser console:
+   ```javascript
+   // Open browser console on your deployed site
+   console.log(process.env.NEXT_PUBLIC_SUPABASE_URL)
+   ```
 
 ### If AccuBot doesn't work:
 1. Verify all 3 Groq API keys are valid
 2. Check API key limits haven't been exceeded
 3. Test with just one API key first
+4. Check API route is accessible: `https://your-site.vercel.app/api/chat`
+
+### Common Vercel Deployment Issues:
+
+**"Command failed with exit code 1"**
+- Missing environment variables
+- Add them and redeploy
+
+**"Module not found"**
+- Run `pnpm install` locally to verify dependencies
+- Check `package.json` is correct
+
+**"Build exceeded maximum duration"**
+- Large CSV files in repository might cause timeout
+- Consider using `.vercelignore` to exclude large data files

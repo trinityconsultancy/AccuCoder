@@ -1,0 +1,23 @@
+# Python virtual environment
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# Large data files (already in Supabase)
+*.csv
+*.pdf
+
+# Scripts (not needed for production)
+scripts/
+
+# Documentation
+*.md
+!README.md
+
+# Development files
+.env.local
+*.log
+
+# Python dependencies
+*.egg-info/
