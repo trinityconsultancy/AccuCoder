@@ -115,7 +115,55 @@ This usually means the deployment hasn't been triggered or environment variables
 5. Verify `vercel.json` is in the repository
 
 ### If data doesn't load after successful deployment:
-1. Check Supabase RLS policies are set correctly
+**This is the most common issue!** Data loads locally but not on deployed site.
+
+**Cause:** Supabase Row Level Security (RLS) policies are blocking public access.
+
+**Solution - Fix RLS Policies:**
+1. Go to **Supabase Dashboard** → SQL Editor
+2. Copy and run this SQL (also in `database/migrations/fix-rls-policies.sql`):
+
+```sql
+-- Fix alphabetical_index table
+DROP POLICY IF EXISTS "Allow public read access" ON alphabetical_index;
+DROP POLICY IF EXISTS "Enable read access for all users" ON alphabetical_index;
+
+ALTER TABLE alphabetical_index ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Enable read access for all users" ON alphabetical_index
+  FOR SELECT
+  TO public
+  USING (true);
+
+-- Fix drugs_and_chemicals table
+DROP POLICY IF EXISTS "Allow public read access" ON drugs_and_chemicals;
+DROP POLICY IF EXISTS "Enable read access for all users" ON drugs_and_chemicals;
+
+ALTER TABLE drugs_and_chemicals ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Enable read access for all users" ON drugs_and_chemicals
+  FOR SELECT
+  TO public
+  USING (true);
+```
+
+3. **Verify policies are active:**
+   - Go to Supabase Dashboard → Table Editor → `alphabetical_index` → Policies tab
+   - You should see policy: "Enable read access for all users"
+   - Do the same for `drugs_and_chemicals` table
+
+4. **Test the deployed site** - data should now load!
+
+**Alternative - Quick Test (Disable RLS temporarily):**
+If you want to quickly test without policies:
+```sql
+ALTER TABLE alphabetical_index DISABLE ROW LEVEL SECURITY;
+ALTER TABLE drugs_and_chemicals DISABLE ROW LEVEL SECURITY;
+```
+⚠️ **Warning:** Only use this for testing. Re-enable RLS for production!
+
+**Other data loading issues:**
+1. Check Supabase URL and key are correct in Vercel
 2. Verify Supabase URL and key are correct
 3. Check browser console for errors
 4. Test Supabase connection from browser console:
