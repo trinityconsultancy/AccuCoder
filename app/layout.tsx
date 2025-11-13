@@ -20,6 +20,7 @@ export default function RootLayout({
 }>) {
   const pathname = usePathname()
   const isHomePage = pathname === '/'
+  const isAuthPage = pathname === '/signup' || pathname === '/login'
 
   return (
     <html lang="en">
@@ -29,10 +30,10 @@ export default function RootLayout({
         <meta name="generator" content="v0.app" />
       </head>
       <body className={`font-sans antialiased`}>
-        {!isHomePage && <TopNavbar />}
+        {!isHomePage && !isAuthPage && <TopNavbar />}
         {children}
-        {!isHomePage && <BottomNavbar />}
-        {!isHomePage && <FloatingChatBot />}
+        {!isHomePage && !isAuthPage && <BottomNavbar />}
+        {!isHomePage && !isAuthPage && <FloatingChatBot />}
         <Analytics />
         <SpeedInsights />
       </body>
