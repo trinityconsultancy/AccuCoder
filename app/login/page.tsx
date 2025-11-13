@@ -44,6 +44,7 @@ export default function LoginPage() {
       if (data.user) {
         // Password correct, redirect to app
         router.push('/index')
+        router.refresh() // Force a refresh to update layout state
       }
     } catch (err) {
       console.error('Login error:', err)
