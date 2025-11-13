@@ -3,19 +3,37 @@
 import Link from "next/link"
 import { motion, AnimatePresence } from "framer-motion"
 import { useState, useEffect, useRef } from "react"
-import { Search, User, NotepadText, BookOpen, ChevronDown } from "lucide-react"
+import { Search, User, NotepadText, BookOpen, ChevronDown, LogOut } from "lucide-react"
 import { NotesDropdown } from "./notes-modal"
+import { supabase } from "@/lib/supabase"
+import { useRouter } from "next/navigation"
+
+interface UserProfile {
+  first_name: string
+  last_name: string
+  email: string
+  organization: string | null
+  position: string | null
+  aapc_id: string | null
+  ahima_id: string | null
+  role: string | null
+}
 
 export function TopNavbar() {
+  const router = useRouter()
   const [placeholderIndex, setPlaceholderIndex] = useState(0)
   const [notesOpen, setNotesOpen] = useState(false)
   const [booksOpen, setBooksOpen] = useState(false)
   const [searchValue, setSearchValue] = useState("")
   const [hasSearched, setHasSearched] = useState(false)
+  const [profileOpen, setProfileOpen] = useState(false)
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
   const notesButtonRef = useRef<HTMLButtonElement>(null)
   const booksButtonRef = useRef<HTMLButtonElement>(null)
   const booksDropdownRef = useRef<HTMLDivElement>(null)
   const searchInputRef = useRef<HTMLInputElement>(null)
+  const profileButtonRef = useRef<HTMLButtonElement>(null)
+  const profileDropdownRef = useRef<HTMLDivElement>(null)
 
   const placeholders = [
     "Search ICD-10: J18.9 - Pneumonia, unspecified...",
@@ -43,6 +61,49 @@ export function TopNavbar() {
     }, 10000)
     return () => clearInterval(interval)
   }, [hasSearched])
+
+  // Fetch user profile
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      
+      if (user) {
+        const { data: profile } = await supabase
+          .from('user_profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single()
+        
+        if (profile) {
+          setUserProfile(profile)
+        }
+      }
+    }
+
+    fetchUserProfile()
+  }, [])
+
+  // Handle logout
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
+    router.push('/')
+  }
+
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        profileDropdownRef.current &&
+        !profileDropdownRef.current.contains(event.target as Node) &&
+        !profileButtonRef.current?.contains(event.target as Node)
+      ) {
+        setProfileOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
 
   // Listen for search events from AccuBot
   useEffect(() => {
@@ -243,13 +304,98 @@ export function TopNavbar() {
               </div>
 
               {/* Profile Icon */}
-              <button 
-                className="p-2 text-foreground/70 hover:text-foreground hover:bg-secondary/60 rounded-lg transition-all"
-                title="User Profile"
-                aria-label="User Profile"
-              >
-                <User className="w-5 h-5" />
-              </button>
+              <div className="relative">
+                <button 
+                  ref={profileButtonRef}
+                  onClick={() => setProfileOpen(!profileOpen)}
+                  className="p-2 text-foreground/70 hover:text-foreground hover:bg-secondary/60 rounded-lg transition-all flex items-center gap-2"
+                  title="User Profile"
+                  aria-label="User Profile"
+                >
+                  {userProfile ? (
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-semibold text-sm">
+                        {userProfile.first_name?.[0]}{userProfile.last_name?.[0]}
+                      </div>
+                      <span className="text-sm font-medium hidden md:block">
+                        {userProfile.first_name} {userProfile.last_name}
+                      </span>
+                    </div>
+                  ) : (
+                    <User className="w-5 h-5" />
+                  )}
+                </button>
+
+                {/* Profile Dropdown */}
+                {profileOpen && userProfile && (
+                  <div
+                    ref={profileDropdownRef}
+                    className="absolute right-0 mt-2 w-80 bg-card border border-border rounded-lg shadow-lg p-4 z-50"
+                  >
+                    {/* User Info Header */}
+                    <div className="flex items-start gap-3 pb-4 border-b border-border">
+                      <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-lg">
+                        {userProfile.first_name?.[0]}{userProfile.last_name?.[0]}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-base truncate">
+                          {userProfile.first_name} {userProfile.last_name}
+                        </h3>
+                        <p className="text-xs text-muted-foreground truncate">{userProfile.email}</p>
+                        {userProfile.role === 'superadmin' && (
+                          <span className="inline-block mt-1 px-2 py-0.5 bg-primary/10 text-primary text-xs font-medium rounded">
+                            Super Admin
+                          </span>
+                        )}
+                        {userProfile.role === 'admin' && (
+                          <span className="inline-block mt-1 px-2 py-0.5 bg-blue-500/10 text-blue-500 text-xs font-medium rounded">
+                            Admin
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Profile Details */}
+                    <div className="py-4 space-y-3 border-b border-border">
+                      {userProfile.organization && (
+                        <div>
+                          <p className="text-xs text-muted-foreground">Organization</p>
+                          <p className="text-sm font-medium">{userProfile.organization}</p>
+                        </div>
+                      )}
+                      {userProfile.position && (
+                        <div>
+                          <p className="text-xs text-muted-foreground">Position</p>
+                          <p className="text-sm font-medium">{userProfile.position}</p>
+                        </div>
+                      )}
+                      <div className="grid grid-cols-2 gap-3">
+                        {userProfile.aapc_id && (
+                          <div>
+                            <p className="text-xs text-muted-foreground">AAPC ID</p>
+                            <p className="text-sm font-medium">{userProfile.aapc_id}</p>
+                          </div>
+                        )}
+                        {userProfile.ahima_id && (
+                          <div>
+                            <p className="text-xs text-muted-foreground">AHIMA ID</p>
+                            <p className="text-sm font-medium">{userProfile.ahima_id}</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Logout Button */}
+                    <button
+                      onClick={handleLogout}
+                      className="w-full mt-4 flex items-center justify-center gap-2 px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-lg transition-all"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      <span className="font-medium">Log Out</span>
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>

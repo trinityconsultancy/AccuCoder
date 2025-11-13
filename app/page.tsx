@@ -63,7 +63,13 @@ export default function Home() {
                 Benefits
               </button>
               <button
-                onClick={() => router.push('/index')}
+                onClick={() => router.push('/login')}
+                className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Login
+              </button>
+              <button
+                onClick={() => router.push('/signup')}
                 className="px-6 py-2 bg-primary text-primary-foreground rounded-lg font-medium text-sm hover:bg-primary/90 transition-all"
               >
                 Get Started
@@ -107,7 +113,16 @@ export default function Home() {
               <button
                 onClick={() => {
                   setMobileMenuOpen(false)
-                  router.push('/index')
+                  router.push('/login')
+                }}
+                className="block w-full text-left px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary/50 rounded-lg transition-colors"
+              >
+                Login
+              </button>
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false)
+                  router.push('/signup')
                 }}
                 className="block w-full px-4 py-2 bg-primary text-primary-foreground rounded-lg font-medium text-sm hover:bg-primary/90 transition-all"
               >
@@ -149,7 +164,7 @@ export default function Home() {
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4">
               <button
-                onClick={() => router.push('/index')}
+                onClick={() => router.push('/signup')}
                 className="group px-8 py-4 bg-primary text-primary-foreground rounded-lg font-semibold text-lg hover:bg-primary/90 transition-all shadow-lg hover:shadow-xl hover:scale-105 flex items-center gap-2"
               >
                 Get Started
@@ -245,30 +260,32 @@ export default function Home() {
       <div id="benefits-section" className="bg-gradient-to-b from-secondary/30 to-background py-24">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold mb-4">Why Choose AccuCoder?</h2>
-            <p className="text-lg text-muted-foreground">Built for modern medical coders</p>
+            <h2 className="text-3xl sm:text-4xl font-bold mb-4">Why Leading Healthcare Organizations Choose AccuCoder</h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Enterprise-grade platform engineered for accuracy, efficiency, and compliance
+            </p>
           </div>
           
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             <BenefitCard
-              icon={<Zap className="w-8 h-8" />}
-              title="Lightning Fast"
-              description="Instant search and navigation through thousands of codes"
+              icon={<Shield className="w-8 h-8" />}
+              title="Regulatory Compliance"
+              description="Always current with the latest ICD-10-CM 2026 standards, official coding guidelines, and regulatory requirements"
             />
             <BenefitCard
-              icon={<Shield className="w-8 h-8" />}
-              title="Always Accurate"
-              description="Up-to-date ICD-10-CM 2026 codes and guidelines"
+              icon={<Zap className="w-8 h-8" />}
+              title="Enhanced Productivity"
+              description="Reduce coding time by up to 40% with intelligent automation, smart suggestions, and streamlined workflows"
             />
             <BenefitCard
               icon={<Sparkles className="w-8 h-8" />}
-              title="AI-Powered"
-              description="Smart assistant to help with complex coding scenarios"
+              title="AI-Driven Intelligence"
+              description="Leverage advanced machine learning algorithms for complex scenario resolution and documentation analysis"
             />
             <BenefitCard
               icon={<Clock className="w-8 h-8" />}
-              title="Save Time"
-              description="Code faster with intuitive interface and smart features"
+              title="Revenue Optimization"
+              description="Maximize reimbursement accuracy with pre-submission validation and comprehensive denial prevention"
             />
           </div>
         </div>
@@ -283,43 +300,249 @@ export default function Home() {
         </div>
       </div>
 
-      {/* CTA Section */}
-      <div className="max-w-4xl mx-auto px-4 py-24">
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-primary to-primary/80 p-12 text-center">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(255,255,255,0.1),transparent_70%)]" />
-          <div className="relative">
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-              Ready to Code Smarter?
-            </h2>
-            <p className="text-lg text-white/90 mb-8 max-w-2xl mx-auto">
-              Join medical coders using AccuCoder to work faster and more accurately
-            </p>
-            <button
-              onClick={() => router.push('/index')}
-              className="group px-8 py-4 bg-white text-primary rounded-lg font-semibold text-lg hover:bg-white/90 transition-all shadow-lg hover:shadow-xl hover:scale-105 inline-flex items-center gap-2"
-            >
-              Start Coding Now
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </button>
+      {/* About Section */}
+      <div id="about-section" className="max-w-7xl mx-auto px-4 py-24">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl sm:text-4xl font-bold mb-4">About AccuCoder</h2>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            Revolutionizing medical coding through innovation and expertise
+          </p>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-12 mb-16">
+          {/* Founder & Vision */}
+          <div className="space-y-6">
+            <div className="flex items-start gap-4">
+              <div className="flex-shrink-0 w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                <Sparkles className="w-6 h-6 text-primary" />
+              </div>
+              <div>
+                <h3 className="text-xl font-semibold mb-2">Our Vision</h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  AccuCoder was founded with a mission to transform medical coding through artificial intelligence and automation. 
+                  We believe that advanced technology should empower healthcare professionals, not replace them.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-4">
+              <div className="flex-shrink-0 w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                <Zap className="w-6 h-6 text-primary" />
+              </div>
+              <div>
+                <h3 className="text-xl font-semibold mb-2">Future Roadmap</h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  We're continuously expanding AccuCoder with advanced features including real-time coding assistance, 
+                  predictive analytics, integration with major EHR systems, and comprehensive audit trail capabilities.
+                </p>
+              </div>
+            </div>
           </div>
+
+          {/* Mission */}
+          <div className="space-y-6">
+            <div className="flex items-start gap-4">
+              <div className="flex-shrink-0 w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                <Shield className="w-6 h-6 text-primary" />
+              </div>
+              <div>
+                <h3 className="text-xl font-semibold mb-2">Our Commitment</h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  We are committed to delivering the most accurate, efficient, and user-friendly medical coding platform. 
+                  Our goal is to reduce coding errors and minimize claim denials.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-4">
+              <div className="flex-shrink-0 w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                <CheckCircle2 className="w-6 h-6 text-primary" />
+              </div>
+              <div>
+                <h3 className="text-xl font-semibold mb-2">Why We Built This</h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  Understanding the complexities of modern healthcare documentation and reimbursement, we created tools 
+                  that make a real difference in healthcare operations and patient care.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Team Section */}
+        <div className="mb-16">
+          <h3 className="text-2xl sm:text-3xl font-bold text-center mb-12">Meet Our Team</h3>
+          
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {/* Founder */}
+            <TeamMemberCard
+              name="Your Name"
+              role="Founder & CEO"
+              description="Visionary leader with expertise in healthcare technology and medical coding innovation"
+            />
+            
+            {/* Team Members */}
+            <TeamMemberCard
+              name="Team Member 1"
+              role="Lead Developer"
+              description="Full-stack engineer specializing in AI and healthcare applications"
+            />
+            
+            <TeamMemberCard
+              name="Team Member 2"
+              role="Medical Coding Specialist"
+              description="Certified coder with 10+ years experience in clinical documentation"
+            />
+            
+            <TeamMemberCard
+              name="Team Member 3"
+              role="Product Manager"
+              description="Healthcare IT professional focused on user experience and workflow optimization"
+            />
+          </div>
+        </div>
+
+        {/* Mission Statement */}
+        <div className="bg-gradient-to-r from-primary/5 to-primary/10 rounded-2xl p-8 md:p-12 text-center border border-primary/20">
+          <h3 className="text-2xl font-bold mb-4">Our Mission</h3>
+          <p className="text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+            To help healthcare organizations optimize their revenue cycle while maintaining the highest standards 
+            of compliance and data security. We're building the future of medical coding, one feature at a time.
+          </p>
         </div>
       </div>
 
       {/* Footer */}
-      <footer className="border-t border-border py-12">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <div className="flex items-center gap-2">
+      <footer className="border-t border-border bg-secondary/20">
+        <div className="max-w-7xl mx-auto px-4 py-12">
+          {/* Main Footer Content */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+            {/* Brand Section */}
+            <div className="md:col-span-1">
               <Image 
                 src="/images/design-mode/AccuCoder.png" 
                 alt="AccuCoder" 
-                width={120}
-                height={30}
-                className="h-8 w-auto"
+                width={140}
+                height={36}
+                className="h-9 w-auto mb-4"
               />
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Precision ICD-10-CM coding powered by artificial intelligence.
+              </p>
             </div>
-            <div className="text-sm text-muted-foreground">
-              © 2025 AccuCoder. All rights reserved.
+
+            {/* Product Links */}
+            <div>
+              <h4 className="font-semibold mb-4">Product</h4>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li>
+                  <button 
+                    onClick={() => router.push('/assistant')}
+                    className="hover:text-foreground transition-colors"
+                  >
+                    AI Assistant
+                  </button>
+                </li>
+                <li>
+                  <button 
+                    onClick={() => router.push('/converter')}
+                    className="hover:text-foreground transition-colors"
+                  >
+                    ICD-9 Converter
+                  </button>
+                </li>
+                <li>
+                  <button 
+                    onClick={() => router.push('/search')}
+                    className="hover:text-foreground transition-colors"
+                  >
+                    Code Finder
+                  </button>
+                </li>
+                <li>
+                  <button 
+                    onClick={() => router.push('/learning')}
+                    className="hover:text-foreground transition-colors"
+                  >
+                    Learning Center
+                  </button>
+                </li>
+              </ul>
+            </div>
+
+            {/* Company Links */}
+            <div>
+              <h4 className="font-semibold mb-4">Company</h4>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li>
+                  <button 
+                    onClick={() => {
+                      const aboutSection = document.getElementById('about-section')
+                      aboutSection?.scrollIntoView({ behavior: 'smooth' })
+                    }}
+                    className="hover:text-foreground transition-colors"
+                  >
+                    About Us
+                  </button>
+                </li>
+                <li>
+                  <button 
+                    onClick={() => router.push('/about')}
+                    className="hover:text-foreground transition-colors"
+                  >
+                    Contact
+                  </button>
+                </li>
+                <li>
+                  <button className="hover:text-foreground transition-colors">
+                    Careers
+                  </button>
+                </li>
+                <li>
+                  <button className="hover:text-foreground transition-colors">
+                    Blog
+                  </button>
+                </li>
+              </ul>
+            </div>
+
+            {/* Legal Links */}
+            <div>
+              <h4 className="font-semibold mb-4">Legal</h4>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li>
+                  <button className="hover:text-foreground transition-colors">
+                    Privacy Policy
+                  </button>
+                </li>
+                <li>
+                  <button className="hover:text-foreground transition-colors">
+                    Terms of Service
+                  </button>
+                </li>
+                <li>
+                  <button className="hover:text-foreground transition-colors">
+                    Cookie Policy
+                  </button>
+                </li>
+                <li>
+                  <button className="hover:text-foreground transition-colors">
+                    HIPAA Compliance
+                  </button>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Bottom Bar */}
+          <div className="pt-8 border-t border-border">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
+              <div>
+                © {new Date().getFullYear()} AccuCoder. All rights reserved.
+              </div>
+              <div className="flex items-center gap-6">
+                <span>Made with ❤️ for Healthcare Professionals</span>
+              </div>
             </div>
           </div>
         </div>
@@ -338,10 +561,12 @@ function FeatureCard({
   icon: React.ReactNode
   title: string
   description: string
-  onClick: () => void
+  onClick?: () => void
 }) {
+  const Component = onClick ? 'button' : 'div'
+  
   return (
-    <button
+    <Component
       onClick={onClick}
       className="group relative p-6 rounded-xl border border-border bg-card hover:border-primary/50 transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 hover:-translate-y-1 text-left"
     >
@@ -353,15 +578,11 @@ function FeatureCard({
         <h3 className="text-xl font-semibold mb-3 group-hover:text-primary transition-colors">
           {title}
         </h3>
-        <p className="text-muted-foreground text-sm leading-relaxed mb-4">
+        <p className="text-muted-foreground text-sm leading-relaxed">
           {description}
         </p>
-        <div className="inline-flex items-center text-sm font-medium text-primary opacity-0 group-hover:opacity-100 transition-opacity">
-          Explore
-          <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
-        </div>
       </div>
-    </button>
+    </Component>
   )
 }
 
@@ -394,6 +615,28 @@ function StatCard({ number, label }: { number: string; label: string }) {
         {number}
       </div>
       <div className="text-lg text-muted-foreground">{label}</div>
+    </div>
+  )
+}
+
+// Team Member Card Component
+function TeamMemberCard({ 
+  name, 
+  role, 
+  description 
+}: { 
+  name: string
+  role: string
+  description: string
+}) {
+  return (
+    <div className="group p-6 rounded-xl border border-border bg-card hover:border-primary/50 transition-all duration-300 hover:shadow-lg text-center">
+      <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 mx-auto mb-4 flex items-center justify-center text-2xl font-bold text-primary">
+        {name.charAt(0)}
+      </div>
+      <h4 className="text-lg font-semibold mb-1">{name}</h4>
+      <p className="text-sm text-primary mb-3">{role}</p>
+      <p className="text-sm text-muted-foreground leading-relaxed">{description}</p>
     </div>
   )
 }
