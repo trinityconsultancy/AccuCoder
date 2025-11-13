@@ -45,8 +45,8 @@ export default function Home() {
             
             {/* Subheadline */}
             <p className="max-w-2xl mx-auto text-lg sm:text-xl text-muted-foreground leading-relaxed">
-              Access 15,000+ ICD-10-CM codes instantly. Get AI-powered assistance. 
-              Code faster and more accurately with AccuCoder.
+              Your complete ICD-10-CM coding companion with AI-powered assistance. 
+              Code faster and more accurately with intelligent tools.
             </p>
             
             {/* CTA Buttons */}
@@ -55,15 +55,18 @@ export default function Home() {
                 onClick={() => router.push('/index')}
                 className="group px-8 py-4 bg-primary text-primary-foreground rounded-lg font-semibold text-lg hover:bg-primary/90 transition-all shadow-lg hover:shadow-xl hover:scale-105 flex items-center gap-2"
               >
-                Get Started Free
+                Get Started
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </button>
               <button
-                onClick={() => router.push('/table/drugs')}
+                onClick={() => {
+                  const featuresSection = document.getElementById('features-section')
+                  featuresSection?.scrollIntoView({ behavior: 'smooth' })
+                }}
                 className="px-8 py-4 bg-background border-2 border-border rounded-lg font-semibold text-lg hover:bg-secondary/50 transition-all flex items-center gap-2"
               >
                 <Search className="w-5 h-5" />
-                Explore Database
+                Explore Features
               </button>
             </div>
             
@@ -71,15 +74,15 @@ export default function Home() {
             <div className="flex flex-wrap justify-center gap-8 pt-8 text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-primary" />
-                <span>7,086 Index Entries</span>
+                <span>Comprehensive Coverage</span>
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-primary" />
-                <span>7,591 Drug Codes</span>
+                <span>AI-Powered</span>
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-primary" />
-                <span>AI Assistant</span>
+                <span>Always Updated</span>
               </div>
             </div>
           </div>
@@ -87,11 +90,11 @@ export default function Home() {
       </div>
 
       {/* Features Section */}
-      <div className="max-w-7xl mx-auto px-4 py-24">
+      <div id="features-section" className="max-w-7xl mx-auto px-4 py-24">
         <div className="text-center mb-16">
           <h2 className="text-3xl sm:text-4xl font-bold mb-4">Everything You Need to Code</h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Powerful tools and comprehensive data to streamline your medical coding workflow
+            Powerful tools and comprehensive resources to streamline your medical coding workflow
           </p>
         </div>
         
@@ -100,7 +103,7 @@ export default function Home() {
           <FeatureCard
             icon={<BookOpen className="w-6 h-6" />}
             title="Alphabetical Index"
-            description="Browse 7,086+ ICD-10-CM codes with intelligent cross-references and external causes"
+            description="Browse ICD-10-CM codes with intelligent cross-references and external causes for quick lookups"
             onClick={() => router.push('/index')}
             gradient="from-blue-500/10 to-cyan-500/10"
           />
@@ -108,7 +111,7 @@ export default function Home() {
           <FeatureCard
             icon={<Pill className="w-6 h-6" />}
             title="Drugs & Chemicals"
-            description="Complete poisoning table with 7,591 substances and comprehensive coding scenarios"
+            description="Complete poisoning table with substances and comprehensive coding scenarios"
             onClick={() => router.push('/table/drugs')}
             gradient="from-purple-500/10 to-pink-500/10"
           />
@@ -183,8 +186,8 @@ export default function Home() {
       {/* Stats Section */}
       <div className="max-w-7xl mx-auto px-4 py-24">
         <div className="grid md:grid-cols-3 gap-8 text-center">
-          <StatCard number="15K+" label="Total Codes" />
-          <StatCard number="99.9%" label="Accuracy" />
+          <StatCard number="ICD-10" label="Latest Standards" />
+          <StatCard number="2026" label="Code Version" />
           <StatCard number="24/7" label="AI Support" />
         </div>
       </div>
