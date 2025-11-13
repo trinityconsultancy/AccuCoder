@@ -189,9 +189,9 @@ export default function Home() {
       {/* Features Section */}
       <div id="features-section" className="max-w-7xl mx-auto px-4 py-24">
         <div className="text-center mb-16">
-          <h2 className="text-3xl sm:text-4xl font-bold mb-4">Everything You Need to Code</h2>
+          <h2 className="text-3xl sm:text-4xl font-bold mb-4">Comprehensive Coding Solutions</h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Powerful tools and comprehensive resources to streamline your medical coding workflow
+            Enterprise-grade tools and curated resources designed to enhance accuracy and efficiency in medical coding
           </p>
         </div>
         
@@ -200,49 +200,43 @@ export default function Home() {
           <FeatureCard
             icon={<BookOpen className="w-6 h-6" />}
             title="Alphabetical Index"
-            description="Browse ICD-10-CM codes with intelligent cross-references and external causes for quick lookups"
+            description="Navigate the complete ICD-10-CM alphabetical index with intelligent cross-references, hierarchical relationships, and external cause classifications"
             onClick={() => router.push('/index')}
-            gradient="from-blue-500/10 to-cyan-500/10"
           />
           
           <FeatureCard
             icon={<Pill className="w-6 h-6" />}
-            title="Drugs & Chemicals"
-            description="Complete poisoning table with substances and comprehensive coding scenarios"
+            title="Drugs & Chemicals Table"
+            description="Access comprehensive poisoning and adverse effect codes with detailed substance classifications and coding scenarios"
             onClick={() => router.push('/table/drugs')}
-            gradient="from-purple-500/10 to-pink-500/10"
           />
           
           <FeatureCard
             icon={<Table className="w-6 h-6" />}
             title="Tabular List"
-            description="Full ICD-10-CM hierarchy with detailed descriptions and code relationships"
+            description="Explore the complete ICD-10-CM code hierarchy with detailed descriptions, inclusion/exclusion notes, and code relationships"
             onClick={() => router.push('/tabular')}
-            gradient="from-green-500/10 to-emerald-500/10"
           />
           
           <FeatureCard
             icon={<MessageSquare className="w-6 h-6" />}
-            title="AI Assistant"
-            description="Ask AccuBot anything about medical coding and get instant, accurate answers"
+            title="AI-Powered Assistant"
+            description="Leverage AccuBot's advanced AI capabilities for instant coding guidance, documentation queries, and complex scenario analysis"
             onClick={() => window.dispatchEvent(new CustomEvent('open-accubot'))}
-            gradient="from-orange-500/10 to-red-500/10"
           />
           
           <FeatureCard
             icon={<Search className="w-6 h-6" />}
-            title="Smart Search"
-            description="Lightning-fast search across codes, terms, substances, and references"
+            title="Advanced Search Engine"
+            description="Perform high-speed searches across codes, diagnoses, procedures, and cross-references with intelligent filtering"
             onClick={() => router.push('/search')}
-            gradient="from-violet-500/10 to-purple-500/10"
           />
           
           <FeatureCard
             icon={<GraduationCap className="w-6 h-6" />}
-            title="Learning Hub"
-            description="Master medical coding with comprehensive guidelines and educational resources"
+            title="Professional Learning Center"
+            description="Access expert coding guidelines, best practices, regulatory updates, and comprehensive educational resources"
             onClick={() => router.push('/learning')}
-            gradient="from-teal-500/10 to-cyan-500/10"
           />
         </div>
       </div>
@@ -339,33 +333,31 @@ function FeatureCard({
   icon, 
   title, 
   description, 
-  onClick, 
-  gradient 
+  onClick
 }: { 
   icon: React.ReactNode
   title: string
   description: string
   onClick: () => void
-  gradient: string
 }) {
   return (
     <button
       onClick={onClick}
-      className="group relative p-6 rounded-xl border border-border bg-card hover:bg-accent/50 transition-all duration-300 hover:shadow-lg hover:scale-105 text-left"
+      className="group relative p-6 rounded-xl border border-border bg-card hover:border-primary/50 transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 hover:-translate-y-1 text-left"
     >
-      <div className={`absolute inset-0 bg-gradient-to-br ${gradient} rounded-xl opacity-0 group-hover:opacity-100 transition-opacity`} />
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-primary/0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity" />
       <div className="relative">
-        <div className="inline-flex p-3 rounded-lg bg-primary/10 text-primary mb-4 group-hover:scale-110 transition-transform">
+        <div className="inline-flex p-3 rounded-lg bg-primary/10 text-primary mb-4 group-hover:bg-primary/20 group-hover:scale-110 transition-all">
           {icon}
         </div>
-        <h3 className="text-xl font-semibold mb-2 group-hover:text-primary transition-colors">
+        <h3 className="text-xl font-semibold mb-3 group-hover:text-primary transition-colors">
           {title}
         </h3>
-        <p className="text-muted-foreground text-sm leading-relaxed">
+        <p className="text-muted-foreground text-sm leading-relaxed mb-4">
           {description}
         </p>
-        <div className="mt-4 inline-flex items-center text-sm font-medium text-primary opacity-0 group-hover:opacity-100 transition-opacity">
-          Learn more
+        <div className="inline-flex items-center text-sm font-medium text-primary opacity-0 group-hover:opacity-100 transition-opacity">
+          Explore
           <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
         </div>
       </div>
