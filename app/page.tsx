@@ -198,44 +198,44 @@ export default function Home() {
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {/* Feature Cards */}
           <FeatureCard
-            icon={<BookOpen className="w-6 h-6" />}
-            title="Alphabetical Index"
-            description="Navigate the complete ICD-10-CM alphabetical index with intelligent cross-references, hierarchical relationships, and external cause classifications"
-            onClick={() => router.push('/index')}
-          />
-          
-          <FeatureCard
-            icon={<Pill className="w-6 h-6" />}
-            title="Drugs & Chemicals Table"
-            description="Access comprehensive poisoning and adverse effect codes with detailed substance classifications and coding scenarios"
-            onClick={() => router.push('/table/drugs')}
-          />
-          
-          <FeatureCard
-            icon={<Table className="w-6 h-6" />}
-            title="Tabular List"
-            description="Explore the complete ICD-10-CM code hierarchy with detailed descriptions, inclusion/exclusion notes, and code relationships"
-            onClick={() => router.push('/tabular')}
-          />
-          
-          <FeatureCard
             icon={<MessageSquare className="w-6 h-6" />}
-            title="AI-Powered Assistant"
-            description="Leverage AccuBot's advanced AI capabilities for instant coding guidance, documentation queries, and complex scenario analysis"
-            onClick={() => window.dispatchEvent(new CustomEvent('open-accubot'))}
+            title="AI-Powered Coding Assistant"
+            description="Leverage AccuBot's advanced natural language processing to resolve complex coding scenarios, documentation queries, and guideline interpretations in real-time"
+            onClick={() => router.push('/assistant')}
+          />
+          
+          <FeatureCard
+            icon={<ArrowRight className="w-6 h-6 rotate-180" />}
+            title="ICD-9 to ICD-10 Converter"
+            description="Seamlessly migrate legacy ICD-9 codes to current ICD-10-CM standards with intelligent mapping and conversion recommendations"
+            onClick={() => router.push('/converter')}
+          />
+          
+          <FeatureCard
+            icon={<Shield className="w-6 h-6" />}
+            title="Claim Denial Analyzer"
+            description="Identify coding errors and documentation gaps before submission with AI-driven analysis to minimize claim denials and optimize reimbursement"
+            onClick={() => router.push('/about')}
           />
           
           <FeatureCard
             icon={<Search className="w-6 h-6" />}
-            title="Advanced Search Engine"
-            description="Perform high-speed searches across codes, diagnoses, procedures, and cross-references with intelligent filtering"
+            title="Clinical Chart Decoder"
+            description="Transform complex clinical documentation into accurate ICD-10-CM codes with context-aware analysis and automated code suggestion"
+            onClick={() => router.push('/cdi')}
+          />
+          
+          <FeatureCard
+            icon={<BookOpen className="w-6 h-6" />}
+            title="Combination Code Finder"
+            description="Discover valid code combinations and identify required secondary codes with built-in compliance checking and sequencing guidance"
             onClick={() => router.push('/search')}
           />
           
           <FeatureCard
             icon={<GraduationCap className="w-6 h-6" />}
-            title="Professional Learning Center"
-            description="Access expert coding guidelines, best practices, regulatory updates, and comprehensive educational resources"
+            title="Interactive Learning Center"
+            description="Master advanced coding techniques through case studies, real-world scenarios, and continuously updated regulatory guidelines"
             onClick={() => router.push('/learning')}
           />
         </div>
