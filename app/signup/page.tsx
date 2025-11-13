@@ -112,7 +112,14 @@ export default function SignUpPage() {
       }
     } catch (err) {
       console.error('Signup error:', err)
-      setError(err instanceof Error ? err.message : 'Failed to sign up')
+      const errorMessage = err instanceof Error ? err.message : 'Failed to sign up'
+      
+      // Check if it's an email rate limit error
+      if (errorMessage.includes('rate limit') || errorMessage.includes('magic link')) {
+        setError('Email confirmation is temporarily unavailable. Please disable email confirmation in Supabase Dashboard (Authentication → Providers → Email) or use the Login page if you already have an account.')
+      } else {
+        setError(errorMessage)
+      }
     } finally {
       setLoading(false)
     }
