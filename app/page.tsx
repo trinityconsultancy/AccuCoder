@@ -134,9 +134,9 @@ export default function Home() {
             
             {/* Main Headline */}
             <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight">
-              <span className="block text-foreground">Medical Coding</span>
+              <span className="block text-foreground">Precision ICD-10-CM Coding</span>
               <span className="block bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-                Made Simple
+                Powered by Intelligence
               </span>
             </h1>
             
