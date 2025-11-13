@@ -73,6 +73,7 @@ export default function SignUpPage() {
         email: formData.email,
         password: formData.password,
         options: {
+          emailRedirectTo: undefined, // Disable email confirmation for demo
           data: {
             first_name: formData.firstName,
             last_name: formData.lastName,
