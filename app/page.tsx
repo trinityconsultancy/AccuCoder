@@ -1,6 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import { 
   BookOpen, 
   Search, 
@@ -13,14 +14,110 @@ import {
   Zap,
   Shield,
   Clock,
-  CheckCircle2
+  CheckCircle2,
+  Menu
 } from 'lucide-react'
+import { useState } from 'react'
 
 export default function Home() {
   const router = useRouter()
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="min-h-screen bg-background">
+      {/* Home Page Navbar */}
+      <nav className="sticky top-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            {/* Logo */}
+            <div className="flex items-center gap-2">
+              <div className="flex items-center">
+                <Image 
+                  src="/images/design-mode/AccuCoder.png" 
+                  alt="AccuCoder" 
+                  width={140}
+                  height={36}
+                  className="h-9 w-auto"
+                />
+              </div>
+            </div>
+
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex items-center gap-8">
+              <button 
+                onClick={() => {
+                  const featuresSection = document.getElementById('features-section')
+                  featuresSection?.scrollIntoView({ behavior: 'smooth' })
+                }}
+                className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Features
+              </button>
+              <button 
+                onClick={() => {
+                  const benefitsSection = document.getElementById('benefits-section')
+                  benefitsSection?.scrollIntoView({ behavior: 'smooth' })
+                }}
+                className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Benefits
+              </button>
+              <button
+                onClick={() => router.push('/index')}
+                className="px-6 py-2 bg-primary text-primary-foreground rounded-lg font-medium text-sm hover:bg-primary/90 transition-all"
+              >
+                Get Started
+              </button>
+            </div>
+
+            {/* Mobile menu button */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden p-2 text-muted-foreground hover:text-foreground"
+            >
+              <Menu className="w-6 h-6" />
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile Navigation */}
+        {mobileMenuOpen && (
+          <div className="md:hidden border-t border-border bg-background">
+            <div className="px-4 py-4 space-y-3">
+              <button 
+                onClick={() => {
+                  setMobileMenuOpen(false)
+                  const featuresSection = document.getElementById('features-section')
+                  featuresSection?.scrollIntoView({ behavior: 'smooth' })
+                }}
+                className="block w-full text-left px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary/50 rounded-lg transition-colors"
+              >
+                Features
+              </button>
+              <button 
+                onClick={() => {
+                  setMobileMenuOpen(false)
+                  const benefitsSection = document.getElementById('benefits-section')
+                  benefitsSection?.scrollIntoView({ behavior: 'smooth' })
+                }}
+                className="block w-full text-left px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary/50 rounded-lg transition-colors"
+              >
+                Benefits
+              </button>
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false)
+                  router.push('/index')
+                }}
+                className="block w-full px-4 py-2 bg-primary text-primary-foreground rounded-lg font-medium text-sm hover:bg-primary/90 transition-all"
+              >
+                Get Started
+              </button>
+            </div>
+          </div>
+        )}
+      </nav>
+
       {/* Hero Section with Gradient */}
       <div className="relative overflow-hidden">
         {/* Gradient Background */}
@@ -151,7 +248,7 @@ export default function Home() {
       </div>
 
       {/* Benefits Section */}
-      <div className="bg-gradient-to-b from-secondary/30 to-background py-24">
+      <div id="benefits-section" className="bg-gradient-to-b from-secondary/30 to-background py-24">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-3xl sm:text-4xl font-bold mb-4">Why Choose AccuCoder?</h2>
@@ -193,7 +290,7 @@ export default function Home() {
       </div>
 
       {/* CTA Section */}
-      <div className="max-w-4xl mx-auto px-4 pb-24">
+      <div className="max-w-4xl mx-auto px-4 py-24">
         <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-primary to-primary/80 p-12 text-center">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(255,255,255,0.1),transparent_70%)]" />
           <div className="relative">
@@ -201,7 +298,7 @@ export default function Home() {
               Ready to Code Smarter?
             </h2>
             <p className="text-lg text-white/90 mb-8 max-w-2xl mx-auto">
-              Join thousands of medical coders using AccuCoder to work faster and more accurately
+              Join medical coders using AccuCoder to work faster and more accurately
             </p>
             <button
               onClick={() => router.push('/index')}
@@ -213,6 +310,26 @@ export default function Home() {
           </div>
         </div>
       </div>
+
+      {/* Footer */}
+      <footer className="border-t border-border py-12">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="flex items-center gap-2">
+              <Image 
+                src="/images/design-mode/AccuCoder.png" 
+                alt="AccuCoder" 
+                width={120}
+                height={30}
+                className="h-8 w-auto"
+              />
+            </div>
+            <div className="text-sm text-muted-foreground">
+              © 2025 AccuCoder. All rights reserved.
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   )
 }
