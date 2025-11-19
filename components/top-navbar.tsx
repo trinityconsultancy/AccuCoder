@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { motion, AnimatePresence } from "framer-motion"
 import { useState, useEffect, useRef } from "react"
-import { Search, User, NotepadText, BookOpen, ChevronDown, LogOut } from "lucide-react"
+import { Search, User, NotepadText, BookOpen, ChevronDown, LogOut, Settings } from "lucide-react"
 import { NotesDropdown } from "./notes-modal"
 import { supabase } from "@/lib/supabase"
 import { useRouter } from "next/navigation"
@@ -384,6 +384,17 @@ export function TopNavbar() {
                         )}
                       </div>
                     </div>
+
+                    {/* Admin Panel Button (only for admin/superadmin) */}
+                    {(userProfile.role === 'admin' || userProfile.role === 'superadmin') && (
+                      <Link
+                        href="/admin"
+                        className="w-full mt-4 flex items-center justify-center gap-2 px-4 py-2 bg-blue-500/10 hover:bg-blue-500/20 text-blue-500 rounded-lg transition-all"
+                      >
+                        <Settings className="w-4 h-4" />
+                        <span className="font-medium">Admin Panel</span>
+                      </Link>
+                    )}
 
                     {/* Logout Button */}
                     <button

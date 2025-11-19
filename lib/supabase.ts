@@ -29,6 +29,19 @@ export interface DrugChemicalRow {
   updated_at?: string
 }
 
+export interface UserReview {
+  id: string
+  name: string
+  email: string
+  role: string
+  location: string
+  country: string
+  rating: number
+  comment: string
+  created_at: string
+  status: 'pending' | 'approved' | 'rejected'
+}
+
 export interface AlphabeticalIndexRow {
   id: number
   term: string
