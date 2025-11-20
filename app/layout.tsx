@@ -19,8 +19,8 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   const pathname = usePathname()
-  const isHomePage = pathname === '/'
-  const isAuthPage = pathname === '/signup' || pathname === '/login'
+  // Public pages without app navigation
+  const isPublicPage = pathname === '/' || pathname === '/signup' || pathname === '/login'
 
   return (
     <html lang="en">
@@ -30,10 +30,10 @@ export default function RootLayout({
         <meta name="generator" content="v0.app" />
       </head>
       <body className={`font-sans antialiased`}>
-        {!isHomePage && !isAuthPage && <TopNavbar />}
+        {!isPublicPage && <TopNavbar />}
         {children}
-        {!isHomePage && !isAuthPage && <BottomNavbar />}
-        {!isHomePage && !isAuthPage && <FloatingChatBot />}
+        {!isPublicPage && <BottomNavbar />}
+        {!isPublicPage && <FloatingChatBot />}
         <Analytics />
         <SpeedInsights />
       </body>
