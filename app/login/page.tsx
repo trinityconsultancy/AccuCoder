@@ -1,25 +1,43 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
-import { ArrowRight, Loader2, Mail } from 'lucide-react'
+import { ArrowRight, Loader2, Mail, CheckCircle2 } from 'lucide-react'
+import PublicNavbar from '@/components/public-navbar'
 
 export default function LoginPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [checking, setChecking] = useState(true)
+  
+  // Check if user is already logged in
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (session) {
+        // User is already logged in, redirect to app
+        router.push('/index')
+      } else {
+        setChecking(false)
+      }
+    }
+    checkAuth()
+  }, [router])
   
   const [formData, setFormData] = useState({
     email: '',
-    password: ''
+    password: '',
+    rememberMe: false
   })
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: value
     })
     setError(null)
   }
@@ -34,6 +52,16 @@ export default function LoginPage() {
         throw new Error('Please enter email and password')
       }
 
+      // IMPORTANT: Set Remember Me preference BEFORE signing in
+      // This ensures the custom storage in supabase.ts uses the correct storage type
+      if (formData.rememberMe) {
+        localStorage.setItem('accucoder_remember_me', 'true')
+      } else {
+        localStorage.removeItem('accucoder_remember_me')
+        // Clear any existing session from localStorage
+        localStorage.removeItem('accucoder-auth')
+      }
+      
       const { data, error: signInError } = await supabase.auth.signInWithPassword({
         email: formData.email,
         password: formData.password,
@@ -55,25 +83,81 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 via-background to-secondary/20 px-4 py-12">
-      <div className="max-w-md w-full">
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <Image 
-            src="/images/design-mode/AccuCoder.png" 
-            alt="AccuCoder" 
-            width={160}
-            height={40}
-            className="h-10 w-auto mx-auto mb-4"
-          />
-          <h1 className="text-3xl font-bold mb-2">Welcome Back</h1>
-          <p className="text-muted-foreground">
-            Log in to your AccuCoder account
-          </p>
-        </div>
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Animated Background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/3 via-primary/2 to-accent/3" />
+      <div className="absolute inset-0">
+        <div className="absolute top-20 left-10 w-72 h-72 bg-primary/6 rounded-full mix-blend-multiply filter blur-3xl animate-blob" />
+        <div className="absolute top-40 right-10 w-72 h-72 bg-primary/5 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-2000" />
+        <div className="absolute -bottom-8 left-40 w-72 h-72 bg-accent/6 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-4000" />
+      </div>
 
-        {/* Form Card */}
-        <div className="bg-card border border-border rounded-2xl p-8 shadow-lg">
+      <PublicNavbar />
+      
+      {checking ? (
+        <div className="flex items-center justify-center min-h-[calc(100vh-200px)]">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        </div>
+      ) : (
+      <div className="relative px-4 pt-8 pb-12">
+        <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-8 items-start">
+          {/* Left Side - Branding */}
+          <div className="hidden md:block space-y-6">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/8 border border-primary/15">
+              <span className="text-sm font-medium text-primary">Trusted by Healthcare Professionals</span>
+            </div>
+            <h1 className="text-5xl font-bold leading-tight">
+              Welcome Back to
+              <span className="block bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mt-2">
+                AccuCoder
+              </span>
+            </h1>
+            <p className="text-lg text-muted-foreground leading-relaxed">
+              Continue your medical coding journey with AI-powered precision and efficiency.
+            </p>
+            <div className="space-y-3 pt-4">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                  <CheckCircle2 className="w-5 h-5 text-primary" />
+                </div>
+                <span className="text-muted-foreground">Instant access to all ICD-10 codes</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                  <CheckCircle2 className="w-5 h-5 text-primary" />
+                </div>
+                <span className="text-muted-foreground">AI-powered coding assistance</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                  <CheckCircle2 className="w-5 h-5 text-primary" />
+                </div>
+                <span className="text-muted-foreground">Real-time validation & compliance</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Side - Form */}
+          <div className="w-full">
+            {/* Mobile Logo */}
+            <div className="md:hidden text-center mb-8">
+              <Image 
+                src="/images/design-mode/AccuCoder.png" 
+                alt="AccuCoder" 
+                width={140}
+                height={36}
+                className="h-9 w-auto mx-auto mb-4"
+              />
+              <h2 className="text-2xl font-bold">Welcome Back</h2>
+            </div>
+
+            {/* Form Card */}
+            <div className="bg-card/80 backdrop-blur-xl border border-border/50 rounded-2xl p-6 shadow-2xl shadow-primary/5 max-h-[calc(100vh-120px)] overflow-y-auto scrollbar-hide" style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}>
+              <style jsx>{`
+                .scrollbar-hide::-webkit-scrollbar {
+                  display: none;
+                }
+              `}</style>
           {/* Password Login Form */}
           <form onSubmit={handlePasswordLogin} className="space-y-4">
               <div>
@@ -106,6 +190,21 @@ export default function LoginPage() {
                   className="w-full px-4 py-2 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
                   placeholder="••••••••"
                 />
+              </div>
+
+              {/* Remember Me Checkbox */}
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="rememberMe"
+                  name="rememberMe"
+                  checked={formData.rememberMe}
+                  onChange={handleChange}
+                  className="w-4 h-4 text-primary bg-background border-border rounded focus:ring-2 focus:ring-primary cursor-pointer"
+                />
+                <label htmlFor="rememberMe" className="ml-2 text-sm text-muted-foreground cursor-pointer">
+                  Remember me
+                </label>
               </div>
 
               {error && (
@@ -144,17 +243,10 @@ export default function LoginPage() {
             </button>
           </div>
         </div>
-
-        {/* Back to Home */}
-        <div className="text-center mt-6">
-          <button
-            onClick={() => router.push('/')}
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
-            ← Back to Home
-          </button>
+          </div>
         </div>
       </div>
+      )}
     </div>
   )
 }

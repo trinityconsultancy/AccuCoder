@@ -8,7 +8,41 @@ if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_A
   console.warn('Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to your Vercel environment variables.')
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+// Create Supabase client with custom storage that respects Remember Me preference
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    storageKey: 'accucoder-auth',
+    storage: typeof window !== 'undefined' ? {
+      getItem: (key: string) => {
+        // Check if user wants to be remembered
+        const rememberMe = localStorage.getItem('accucoder_remember_me')
+        if (rememberMe === 'true') {
+          // Use localStorage for persistent session
+          return localStorage.getItem(key)
+        } else {
+          // Use sessionStorage for session-only persistence
+          return sessionStorage.getItem(key)
+        }
+      },
+      setItem: (key: string, value: string) => {
+        // Check if user wants to be remembered
+        const rememberMe = localStorage.getItem('accucoder_remember_me')
+        if (rememberMe === 'true') {
+          // Store in localStorage for persistence
+          localStorage.setItem(key, value)
+        } else {
+          // Store in sessionStorage (clears on browser close)
+          sessionStorage.setItem(key, value)
+        }
+      },
+      removeItem: (key: string) => {
+        // Remove from both storages to be safe
+        localStorage.removeItem(key)
+        sessionStorage.removeItem(key)
+      },
+    } : undefined,
+  },
+})
 
 // Types for the database
 export interface DrugChemicalRow {

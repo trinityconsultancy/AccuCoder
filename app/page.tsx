@@ -31,6 +31,41 @@ import {
 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { getRandomTestimonialSet, type Testimonial } from '@/lib/testimonials-data'
+import PublicNavbar from '@/components/public-navbar'
+import { supabase } from '@/lib/supabase'
+
+// Get Started Button Component
+function GetStartedButton() {
+  const router = useRouter()
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      setIsLoggedIn(!!session)
+    }
+    checkAuth()
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsLoggedIn(!!session)
+    })
+
+    return () => subscription.unsubscribe()
+  }, [])
+
+  return (
+    <button
+      onClick={() => router.push(isLoggedIn ? '/index' : '/signup')}
+      className="group relative px-8 py-4 bg-primary text-primary-foreground rounded-xl font-semibold text-lg shadow-lg shadow-primary/15 hover:shadow-primary/25 hover:scale-105 transition-all duration-300 flex items-center gap-2 overflow-hidden"
+    >
+      <span className="absolute inset-0 bg-primary/95 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+      <span className="relative flex items-center gap-2">
+        {isLoggedIn ? 'Go to Dashboard' : 'Get Started Free'}
+        <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+      </span>
+    </button>
+  )
+}
 
 export default function Home() {
   const router = useRouter()
@@ -121,113 +156,8 @@ export default function Home() {
   
   return (
     <div className="min-h-screen bg-background">
-      {/* Home Page Navbar with Glassmorphism */}
-      <nav className="sticky top-0 z-50 bg-background/70 backdrop-blur-xl border-b border-border/50 shadow-lg shadow-primary/5">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            {/* Logo */}
-            <div className="flex items-center gap-2">
-              <div className="flex items-center">
-                <Image 
-                  src="/images/design-mode/AccuCoder.png" 
-                  alt="AccuCoder" 
-                  width={140}
-                  height={36}
-                  className="h-9 w-auto"
-                />
-              </div>
-            </div>
-
-            {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center gap-8">
-              <button 
-                onClick={() => {
-                  const featuresSection = document.getElementById('features-section')
-                  featuresSection?.scrollIntoView({ behavior: 'smooth' })
-                }}
-                className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Features
-              </button>
-              <button 
-                onClick={() => {
-                  const benefitsSection = document.getElementById('benefits-section')
-                  benefitsSection?.scrollIntoView({ behavior: 'smooth' })
-                }}
-                className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Benefits
-              </button>
-              <button
-                onClick={() => router.push('/login')}
-                className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Login
-              </button>
-              <button
-                onClick={() => router.push('/signup')}
-                className="px-6 py-2 bg-primary text-primary-foreground rounded-lg font-medium text-sm hover:bg-primary/90 transition-all"
-              >
-                Get Started
-              </button>
-            </div>
-
-            {/* Mobile menu button */}
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 text-muted-foreground hover:text-foreground"
-            >
-              <Menu className="w-6 h-6" />
-            </button>
-          </div>
-        </div>
-
-        {/* Mobile Navigation */}
-        {mobileMenuOpen && (
-          <div className="md:hidden border-t border-border bg-background">
-            <div className="px-4 py-4 space-y-3">
-              <button 
-                onClick={() => {
-                  setMobileMenuOpen(false)
-                  const featuresSection = document.getElementById('features-section')
-                  featuresSection?.scrollIntoView({ behavior: 'smooth' })
-                }}
-                className="block w-full text-left px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary/50 rounded-lg transition-colors"
-              >
-                Features
-              </button>
-              <button 
-                onClick={() => {
-                  setMobileMenuOpen(false)
-                  const benefitsSection = document.getElementById('benefits-section')
-                  benefitsSection?.scrollIntoView({ behavior: 'smooth' })
-                }}
-                className="block w-full text-left px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary/50 rounded-lg transition-colors"
-              >
-                Benefits
-              </button>
-              <button
-                onClick={() => {
-                  setMobileMenuOpen(false)
-                  router.push('/login')
-                }}
-                className="block w-full text-left px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary/50 rounded-lg transition-colors"
-              >
-                Login
-              </button>
-              <button
-                onClick={() => {
-                  setMobileMenuOpen(false)
-                  router.push('/signup')
-                }}
-                className="block w-full px-4 py-2 bg-primary text-primary-foreground rounded-lg font-medium text-sm hover:bg-primary/90 transition-all"
-              >
-                Get Started
-              </button>
-            </div>
-          </div>
-        )}
-      </nav>
+      {/* Navigation */}
+      <PublicNavbar setVideoPlaying={setVideoPlaying} />
 
       {/* Hero Section with Animated Gradient */}
       <div className="relative overflow-hidden">
@@ -265,16 +195,7 @@ export default function Home() {
             
             {/* CTA Buttons with Enhanced Effects */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4 animate-fade-in-up animation-delay-400">
-              <button
-                onClick={() => router.push('/signup')}
-                className="group relative px-8 py-4 bg-primary text-primary-foreground rounded-xl font-semibold text-lg shadow-lg shadow-primary/15 hover:shadow-primary/25 hover:scale-105 transition-all duration-300 flex items-center gap-2 overflow-hidden"
-              >
-                <span className="absolute inset-0 bg-primary/95 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
-                <span className="relative flex items-center gap-2">
-                  Get Started Free
-                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                </span>
-              </button>
+              <GetStartedButton />
               <button
                 onClick={() => {
                   const featuresSection = document.getElementById('features-section')
@@ -543,7 +464,7 @@ export default function Home() {
       </div>
 
       {/* Video/Animation Section */}
-      <div className="max-w-7xl mx-auto px-4 py-20 bg-gradient-to-b from-secondary/10 to-transparent">
+      <div id="demo-section" className="max-w-7xl mx-auto px-4 py-20 bg-gradient-to-b from-secondary/10 to-transparent">
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/8 border border-primary/15 mb-4">
             <Play className="w-4 h-4 text-primary" />
@@ -559,35 +480,25 @@ export default function Home() {
 
         <div className="max-w-4xl mx-auto">
           <div className="relative aspect-video rounded-2xl overflow-hidden border-2 border-primary/25 shadow-2xl shadow-primary/15 group">
-            {!videoPlaying ? (
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/15 via-primary/5 to-accent/15 flex items-center justify-center cursor-pointer" onClick={() => setVideoPlaying(true)}>
-                <div className="absolute inset-0">
-                  <div className="absolute top-1/4 left-1/4 w-32 h-32 bg-primary/20 rounded-full blur-3xl animate-blob" />
-                  <div className="absolute top-1/3 right-1/4 w-40 h-40 bg-accent/20 rounded-full blur-3xl animate-blob animation-delay-2000" />
-                  <div className="absolute bottom-1/4 left-1/3 w-36 h-36 bg-primary/15 rounded-full blur-3xl animate-blob animation-delay-4000" />
-                </div>
-                <div className="relative z-10 text-center">
-                  <div className="w-20 h-20 rounded-full bg-primary/90 backdrop-blur-sm flex items-center justify-center mb-4 mx-auto group-hover:scale-110 group-hover:bg-primary transition-all shadow-lg shadow-primary/25">
-                    <Play className="w-8 h-8 text-primary-foreground ml-1" />
-                  </div>
-                  <p className="text-lg font-semibold mb-2">Watch Demo Video</p>
-                  <p className="text-sm text-muted-foreground">See AccuCoder in action (2:30)</p>
-                </div>
+            {/* Background with animated blobs */}
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/15 via-primary/5 to-accent/15">
+              <div className="absolute inset-0">
+                <div className="absolute top-1/4 left-1/4 w-32 h-32 bg-primary/20 rounded-full blur-3xl animate-blob" />
+                <div className="absolute top-1/3 right-1/4 w-40 h-40 bg-accent/20 rounded-full blur-3xl animate-blob animation-delay-2000" />
+                <div className="absolute bottom-1/4 left-1/3 w-36 h-36 bg-primary/15 rounded-full blur-3xl animate-blob animation-delay-4000" />
               </div>
-            ) : (
-              <div className="absolute inset-0 bg-background flex items-center justify-center">
-                <div className="text-center">
-                  <div className="w-16 h-16 rounded-full border-4 border-primary/30 border-t-primary animate-spin mx-auto mb-4" />
-                  <p className="text-muted-foreground">Demo video would load here</p>
-                  <button 
-                    onClick={() => setVideoPlaying(false)}
-                    className="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-all"
-                  >
-                    Close Preview
-                  </button>
+            </div>
+
+            {/* Play button overlay - always visible until video is added */}
+            <div className="absolute inset-0 flex items-center justify-center cursor-pointer hover:bg-primary/5 transition-colors">
+              <div className="relative z-10 text-center">
+                <div className="w-20 h-20 rounded-full bg-primary/90 backdrop-blur-sm flex items-center justify-center mb-4 mx-auto group-hover:scale-110 group-hover:bg-primary transition-all shadow-lg shadow-primary/25">
+                  <Play className="w-8 h-8 text-primary-foreground ml-1" />
                 </div>
+                <p className="text-lg font-semibold mb-2">Watch Demo Video</p>
+                <p className="text-sm text-muted-foreground">See AccuCoder in action (2:30)</p>
               </div>
-            )}
+            </div>
           </div>
 
           {/* Key Features Below Video */}
@@ -777,7 +688,21 @@ export default function Home() {
                 We're looking for passionate individuals in medical coding and quality assurance. 
                 Let's build something amazing together!
               </p>
-              <button className="px-6 py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-all flex items-center gap-2 mx-auto">
+              <button 
+                onClick={() => {
+                  const contactSection = document.getElementById('contact-section')
+                  contactSection?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                  // Add highlight effect
+                  contactSection?.style.setProperty('transition', 'all 0.5s ease')
+                  contactSection?.style.setProperty('background', 'rgba(var(--primary-rgb, 120 119 198) / 0.2)')
+                  contactSection?.style.setProperty('border-radius', '0.75rem')
+                  contactSection?.style.setProperty('padding', '1rem')
+                  setTimeout(() => {
+                    contactSection?.style.setProperty('background', 'transparent')
+                  }, 2000)
+                }}
+                className="px-6 py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-all flex items-center gap-2 mx-auto hover:scale-105"
+              >
                 <Mail className="w-4 h-4" />
                 Get in Touch
               </button>
@@ -907,7 +832,7 @@ export default function Home() {
       </div>
 
       {/* Newsletter Signup Section */}
-      <div className="max-w-7xl mx-auto px-4 py-20">
+      <div id="newsletter-section" className="max-w-7xl mx-auto px-4 py-20">
         <div className="max-w-4xl mx-auto rounded-3xl bg-gradient-to-br from-primary/8 via-primary/5 to-accent/8 border-2 border-primary/25 p-12 text-center relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/3 to-accent/3" />
           <div className="relative z-10">
@@ -1114,41 +1039,117 @@ export default function Home() {
         </div>
       )}
 
-      {/* Footer - Minimal */}
+      {/* Footer */}
       <footer className="relative border-t border-border bg-gradient-to-b from-secondary/20 to-secondary/40">
-        <div className="max-w-7xl mx-auto px-4 py-8">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-            {/* Brand */}
-            <div className="text-center md:text-left">
+        <div className="max-w-7xl mx-auto px-4 py-12">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+            {/* Brand & Description */}
+            <div>
               <Image 
                 src="/images/design-mode/AccuCoder.png" 
                 alt="AccuCoder" 
-                width={120}
-                height={30}
-                className="h-8 w-auto mb-2 mx-auto md:mx-0"
+                width={140}
+                height={36}
+                className="h-9 w-auto mb-4"
               />
+              <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
+                AI-powered medical coding platform designed to enhance accuracy, efficiency, and compliance for healthcare professionals worldwide.
+              </p>
               <p className="text-xs text-muted-foreground">
                 © {new Date().getFullYear()} AccuCoder. All rights reserved.
               </p>
             </div>
 
-            {/* Contact Info */}
-            <div className="text-center md:text-right space-y-1">
-              <h4 className="font-semibold text-sm mb-2">Contact Us</h4>
-              <a 
-                href="mailto:accucoder.app@gmail.com" 
-                className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors justify-center md:justify-end"
-              >
-                <Mail className="w-4 h-4" />
-                accucoder.app@gmail.com
-              </a>
-              <a 
-                href="tel:+918420690958" 
-                className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors justify-center md:justify-end"
-              >
-                <span className="text-base">📞</span>
-                +91 8420690958
-              </a>
+            {/* Legal & Compliance */}
+            <div>
+              <h4 className="font-semibold text-sm mb-4 text-foreground">Legal & Compliance</h4>
+              <div className="space-y-2.5">
+                <a 
+                  href="#privacy"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    alert('Privacy Policy: We respect your privacy and handle your data securely. We collect only essential information needed for service delivery. Your personal information is never shared with third parties without consent. Contact us for detailed privacy policy.')
+                  }}
+                  className="block text-sm text-muted-foreground hover:text-primary transition-colors hover:translate-x-1 duration-200"
+                >
+                  Privacy Policy
+                </a>
+                <a 
+                  href="#terms"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    alert('Terms & Conditions: By using AccuCoder, you agree to use the platform responsibly and in compliance with healthcare regulations. All ICD-10 codes are provided for informational purposes. Final coding decisions remain the responsibility of certified medical coders.')
+                  }}
+                  className="block text-sm text-muted-foreground hover:text-primary transition-colors hover:translate-x-1 duration-200"
+                >
+                  Terms of Service
+                </a>
+                <a 
+                  href="#disclaimer"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    alert('Medical Disclaimer: AccuCoder is an educational and assistive tool. It does not replace professional medical coding expertise or judgment. Always verify codes with official ICD-10-CM guidelines before submission.')
+                  }}
+                  className="block text-sm text-muted-foreground hover:text-primary transition-colors hover:translate-x-1 duration-200"
+                >
+                  Medical Disclaimer
+                </a>
+                <a 
+                  href="#cookie"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    alert('Cookie Policy: We use essential cookies to ensure platform functionality and improve your experience. No third-party tracking cookies are used without your consent.')
+                  }}
+                  className="block text-sm text-muted-foreground hover:text-primary transition-colors hover:translate-x-1 duration-200"
+                >
+                  Cookie Policy
+                </a>
+              </div>
+            </div>
+
+            {/* Contact Information */}
+            <div id="contact-section">
+              <h4 className="font-semibold text-sm mb-4 text-foreground">Get In Touch</h4>
+              <div className="space-y-3">
+                <a 
+                  href="mailto:accucoder.app@gmail.com" 
+                  className="flex items-center gap-3 text-sm text-muted-foreground hover:text-primary transition-colors group"
+                >
+                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                    <Mail className="w-4 h-4" />
+                  </div>
+                  <span>accucoder.app@gmail.com</span>
+                </a>
+                <a 
+                  href="tel:+918420690958" 
+                  className="flex items-center gap-3 text-sm text-muted-foreground hover:text-primary transition-colors group"
+                >
+                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors text-base">
+                    📞
+                  </div>
+                  <span>+91 8420690958</span>
+                </a>
+                <div className="pt-2">
+                  <p className="text-xs text-muted-foreground">
+                    Available Monday - Friday<br />
+                    9:00 AM - 6:00 PM IST
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom Bar */}
+          <div className="pt-8 border-t border-border/50">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+              <p className="text-xs text-muted-foreground text-center md:text-left">
+                Made with ❤️ for healthcare professionals worldwide
+              </p>
+              <div className="flex items-center gap-4">
+                <span className="text-xs text-muted-foreground">Certified ICD-10-CM 2026</span>
+                <span className="text-xs text-muted-foreground">•</span>
+                <span className="text-xs text-muted-foreground">HIPAA Compliant</span>
+              </div>
             </div>
           </div>
         </div>

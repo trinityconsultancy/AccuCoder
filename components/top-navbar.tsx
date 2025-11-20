@@ -86,6 +86,11 @@ export function TopNavbar() {
   // Handle logout
   const handleLogout = async () => {
     await supabase.auth.signOut()
+    // Clear Remember Me preference
+    localStorage.removeItem('accucoder_remember_me')
+    // Clear auth tokens from both storages
+    localStorage.removeItem('accucoder-auth')
+    sessionStorage.removeItem('accucoder-auth')
     router.push('/')
   }
 
