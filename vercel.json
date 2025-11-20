@@ -4,5 +4,7 @@
   "devCommand": "pnpm run dev",
   "installCommand": "pnpm install",
   "framework": "nextjs",
-  "outputDirectory": ".next"
+  "outputDirectory": ".next",
+  "trailingSlash": false,
+  "cleanUrls": false
 }
