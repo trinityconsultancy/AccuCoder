@@ -9,7 +9,7 @@ export function Header() {
 
   const navLinks = [
     { href: "/", label: "Home", id: "home" },
-    { href: "/index", label: "Index", id: "index" },
+    { href: "/dashboard", label: "Dashboard", id: "dashboard" },
     { href: "/tabular", label: "Tabular List", id: "tabular" },
     { href: "/search", label: "Code Search", id: "search" },
     { href: "/converter", label: "ICD Converter", id: "converter" },

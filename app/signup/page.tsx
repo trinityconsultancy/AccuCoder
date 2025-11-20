@@ -20,7 +20,7 @@ export default function SignUpPage() {
       const { data: { session } } = await supabase.auth.getSession()
       if (session) {
         // User is already logged in, redirect to app
-        router.push('/index')
+        router.push('/dashboard')
       } else {
         setChecking(false)
       }

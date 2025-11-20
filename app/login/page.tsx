@@ -19,7 +19,7 @@ export default function LoginPage() {
       const { data: { session } } = await supabase.auth.getSession()
       if (session) {
         // User is already logged in, redirect to app
-        router.push('/index')
+        router.push('/dashboard')
       } else {
         setChecking(false)
       }
@@ -71,7 +71,7 @@ export default function LoginPage() {
 
       if (data.user) {
         // Password correct, redirect to app
-        router.push('/index')
+        router.push('/dashboard')
         router.refresh() // Force a refresh to update layout state
       }
     } catch (err) {

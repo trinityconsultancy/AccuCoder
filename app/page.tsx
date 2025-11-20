@@ -55,7 +55,7 @@ function GetStartedButton() {
 
   return (
     <button
-      onClick={() => router.push(isLoggedIn ? '/index' : '/signup')}
+      onClick={() => router.push(isLoggedIn ? '/dashboard' : '/signup')}
       className="group relative px-8 py-4 bg-primary text-primary-foreground rounded-xl font-semibold text-lg shadow-lg shadow-primary/15 hover:shadow-primary/25 hover:scale-105 transition-all duration-300 flex items-center gap-2 overflow-hidden"
     >
       <span className="absolute inset-0 bg-primary/95 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
