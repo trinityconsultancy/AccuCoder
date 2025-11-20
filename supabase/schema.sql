@@ -22,18 +22,18 @@ CREATE INDEX IF NOT EXISTS idx_user_reviews_country ON user_reviews(country);
 -- Enable Row Level Security (RLS)
 ALTER TABLE user_reviews ENABLE ROW LEVEL SECURITY;
 
--- Policy: Anyone can insert reviews
+-- Policy: Anyone (including anonymous users) can insert reviews
 CREATE POLICY "Anyone can insert reviews"
   ON user_reviews
   FOR INSERT
-  TO public
+  TO anon, authenticated
   WITH CHECK (true);
 
 -- Policy: Anyone can read approved reviews
 CREATE POLICY "Anyone can read approved reviews"
   ON user_reviews
   FOR SELECT
-  TO public
+  TO anon, authenticated
   USING (status = 'approved');
 
 -- Policy: Only authenticated users can read all reviews (for admin)

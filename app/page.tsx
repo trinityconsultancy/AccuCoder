@@ -30,13 +30,14 @@ import {
   Check
 } from 'lucide-react'
 import { useState, useEffect } from 'react'
-import { testimonials, type Testimonial } from '@/lib/testimonials-data'
+import { getRandomTestimonialSet, type Testimonial } from '@/lib/testimonials-data'
 
 export default function Home() {
   const router = useRouter()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [videoPlaying, setVideoPlaying] = useState(false)
   const [email, setEmail] = useState('')
+  const [shuffledTestimonials, setShuffledTestimonials] = useState<Testimonial[]>([])
   const [currentTestimonialIndex, setCurrentTestimonialIndex] = useState(0)
   const [showReviewModal, setShowReviewModal] = useState(false)
   const [reviewForm, setReviewForm] = useState({
@@ -50,24 +51,42 @@ export default function Home() {
   })
   const [submitting, setSubmitting] = useState(false)
 
+  // Get random testimonial set and shuffle on component mount
+  useEffect(() => {
+    const randomSet = getRandomTestimonialSet()
+    const shuffled = [...randomSet].sort(() => Math.random() - 0.5)
+    setShuffledTestimonials(shuffled)
+  }, [])
+
   // Auto-rotate testimonials every 5 seconds
   useEffect(() => {
+    if (shuffledTestimonials.length === 0) return
+    
     const interval = setInterval(() => {
-      setCurrentTestimonialIndex((prev) => (prev + 1) % testimonials.length)
+      setCurrentTestimonialIndex((prev) => {
+        // Move to next set of 3 testimonials
+        const nextIndex = prev + 3
+        return nextIndex >= shuffledTestimonials.length ? 0 : nextIndex
+      })
     }, 5000)
     return () => clearInterval(interval)
-  }, [])
+  }, [shuffledTestimonials])
 
   const handleReviewSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setSubmitting(true)
 
     try {
+      console.log('Submitting review:', reviewForm)
+      
       const response = await fetch('/api/reviews', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(reviewForm)
       })
+
+      const result = await response.json()
+      console.log('Response:', result)
 
       if (response.ok) {
         alert('Thank you for your review! It will be visible after admin approval.')
@@ -82,21 +101,23 @@ export default function Home() {
           comment: ''
         })
       } else {
-        alert('Failed to submit review. Please try again.')
+        const errorMsg = result.error || 'Failed to submit review'
+        console.error('Server error:', errorMsg)
+        alert(`Failed to submit review: ${errorMsg}`)
       }
     } catch (error) {
       console.error('Error submitting review:', error)
-      alert('An error occurred. Please try again later.')
+      alert('Network error. Please check your internet connection and try again.')
     } finally {
       setSubmitting(false)
     }
   }
 
-  const displayTestimonials = [
-    testimonials[currentTestimonialIndex],
-    testimonials[(currentTestimonialIndex + 1) % testimonials.length],
-    testimonials[(currentTestimonialIndex + 2) % testimonials.length]
-  ]
+  const displayTestimonials = shuffledTestimonials.length > 0 ? [
+    shuffledTestimonials[currentTestimonialIndex],
+    shuffledTestimonials[(currentTestimonialIndex + 1) % shuffledTestimonials.length],
+    shuffledTestimonials[(currentTestimonialIndex + 2) % shuffledTestimonials.length]
+  ] : []
   
   return (
     <div className="min-h-screen bg-background">
@@ -798,14 +819,15 @@ export default function Home() {
         <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto mb-12">
           {displayTestimonials.map((testimonial, index) => (
             <div 
-              key={testimonial.id} 
-              className="group p-6 rounded-2xl border border-border bg-card hover:border-primary/25 hover:shadow-lg hover:shadow-primary/10 transition-all duration-500 transform hover:scale-105"
+              key={`testimonial-${currentTestimonialIndex}-${index}`} 
+              className="group p-6 rounded-2xl border border-border bg-card hover:border-primary/25 hover:shadow-lg hover:shadow-primary/10 transition-all duration-700 ease-out animate-smooth-fade-slide hover:animate-gentle-float flex flex-col h-full min-h-[280px]"
               style={{
-                animation: 'fade-in-up 0.6s ease-out',
-                animationDelay: `${index * 0.1}s`
+                animationDelay: `${index * 0.15}s`,
+                animationFillMode: 'backwards',
+                transitionTimingFunction: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)'
               }}
             >
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center justify-between mb-4 flex-shrink-0">
                 <div className="flex items-center gap-1">
                   {[...Array(5)].map((_, i) => (
                     <Star 
@@ -814,21 +836,21 @@ export default function Home() {
                     />
                   ))}
                 </div>
-                <span className="text-xs px-2 py-1 rounded-full bg-primary/10 text-primary font-medium">
+                <span className="text-xs px-2 py-1 rounded-full bg-primary/10 text-primary font-medium whitespace-nowrap">
                   {testimonial.country}
                 </span>
               </div>
-              <p className="text-muted-foreground mb-6 leading-relaxed line-clamp-4">
+              <p className="text-muted-foreground mb-6 leading-relaxed line-clamp-4 flex-grow">
                 "{testimonial.comment}"
               </p>
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center font-bold text-primary text-sm">
+              <div className="flex items-center gap-3 mt-auto pt-2 flex-shrink-0">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center font-bold text-primary text-sm flex-shrink-0">
                   {testimonial.initials}
                 </div>
-                <div>
-                  <h4 className="font-semibold">{testimonial.name}</h4>
-                  <p className="text-sm text-muted-foreground">{testimonial.role}</p>
-                  <p className="text-xs text-muted-foreground/70">{testimonial.location}</p>
+                <div className="min-w-0 flex-1">
+                  <h4 className="font-semibold truncate">{testimonial.name}</h4>
+                  <p className="text-sm text-muted-foreground truncate">{testimonial.role}</p>
+                  <p className="text-xs text-muted-foreground/70 truncate">{testimonial.location}</p>
                 </div>
               </div>
             </div>
@@ -837,7 +859,7 @@ export default function Home() {
 
         {/* Pagination Dots */}
         <div className="flex justify-center gap-2 mb-12">
-          {Array.from({ length: Math.ceil(testimonials.length / 3) }).map((_, i) => (
+          {shuffledTestimonials.length > 0 && Array.from({ length: Math.ceil(shuffledTestimonials.length / 3) }).map((_, i) => (
             <button
               key={i}
               onClick={() => setCurrentTestimonialIndex(i * 3)}
