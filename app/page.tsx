@@ -725,7 +725,7 @@ export default function Home() {
                 </span>
               </div>
               <p className="text-muted-foreground mb-6 leading-relaxed line-clamp-4 flex-grow">
-                "{testimonial.comment}"
+                {testimonial.comment}
               </p>
               <div className="flex items-center gap-3 mt-auto pt-2 flex-shrink-0">
                 <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center font-bold text-primary text-sm flex-shrink-0">
