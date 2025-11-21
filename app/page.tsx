@@ -289,64 +289,11 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Benefits Section */}
-      <div id="benefits-section" className="relative bg-gradient-to-b from-secondary/20 via-primary/3 to-background py-24 overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(120,119,198,0.05),transparent_70%)]" />
-        <div className="relative max-w-7xl mx-auto px-4">
-          <div className="text-center mb-16">
-            <div className="inline-block px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-sm font-semibold text-primary mb-6">
-              <span className="animate-pulse">🚀</span> Why AccuCoder
-            </div>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4">
-              <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                Why Leading Healthcare Organizations Choose AccuCoder
-              </span>
-            </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              Enterprise-grade platform engineered for accuracy, efficiency, and compliance
-            </p>
-          </div>
-          
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <BenefitCard
-              icon={<Shield className="w-8 h-8" />}
-              title="Regulatory Compliance"
-              description="Always current with the latest ICD-10-CM 2026 standards, official coding guidelines, and regulatory requirements"
-            />
-            <BenefitCard
-              icon={<Zap className="w-8 h-8" />}
-              title="Enhanced Productivity"
-              description="Reduce coding time by up to 40% with intelligent automation, smart suggestions, and streamlined workflows"
-            />
-            <BenefitCard
-              icon={<Sparkles className="w-8 h-8" />}
-              title="AI-Driven Intelligence"
-              description="Leverage advanced machine learning algorithms for complex scenario resolution and documentation analysis"
-            />
-            <BenefitCard
-              icon={<Clock className="w-8 h-8" />}
-              title="Revenue Optimization"
-              description="Maximize reimbursement accuracy with pre-submission validation and comprehensive denial prevention"
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Stats Section */}
-      <div className="relative max-w-7xl mx-auto px-4 py-24">
-        <div className="absolute inset-0 bg-gradient-to-r from-primary/2 to-accent/2 rounded-3xl" />
-        <div className="relative grid md:grid-cols-3 gap-8 text-center">
-          <StatCard number="ICD-10" label="Latest Standards" />
-          <StatCard number="2026" label="Code Version" />
-          <StatCard number="24/7" label="AI Support" />
-        </div>
-      </div>
-
-      {/* Comparison Table Section */}
+      {/* Comparison Section - Card Based Approach */}
       <div className="max-w-7xl mx-auto px-4 py-20" id="comparison-section">
-        <div className="text-center mb-12">
+        <div className="text-center mb-16">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/8 border border-primary/15 mb-4">
-            <Table className="w-4 h-4 text-primary" />
+            <Zap className="w-4 h-4 text-primary" />
             <span className="text-sm font-medium text-primary">Comparison</span>
           </div>
           <h2 className="text-4xl font-bold mb-4">
@@ -357,108 +304,120 @@ export default function Home() {
           </p>
         </div>
 
-        <div className="max-w-5xl mx-auto overflow-hidden rounded-2xl border border-border bg-card shadow-lg">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-border bg-secondary/30">
-                  <th className="text-left p-6 font-semibold text-foreground">Feature</th>
-                  <th className="text-center p-6 font-semibold text-primary">AccuCoder</th>
-                  <th className="text-center p-6 font-semibold text-muted-foreground">Traditional Coding</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr className="border-b border-border hover:bg-secondary/10 transition-colors">
-                  <td className="p-6 font-medium">Search Speed</td>
-                  <td className="text-center p-6">
-                    <div className="flex flex-col items-center gap-1">
-                      <Check className="w-5 h-5 text-green-500" />
-                      <span className="text-sm text-primary font-semibold">Instant</span>
-                    </div>
-                  </td>
-                  <td className="text-center p-6">
-                    <div className="flex flex-col items-center gap-1">
-                      <Clock className="w-5 h-5 text-muted-foreground" />
-                      <span className="text-sm text-muted-foreground">Minutes</span>
-                    </div>
-                  </td>
-                </tr>
-                <tr className="border-b border-border hover:bg-secondary/10 transition-colors">
-                  <td className="p-6 font-medium">AI Assistance</td>
-                  <td className="text-center p-6">
-                    <div className="flex flex-col items-center gap-1">
-                      <Check className="w-5 h-5 text-green-500" />
-                      <span className="text-sm text-primary font-semibold">24/7 Available</span>
-                    </div>
-                  </td>
-                  <td className="text-center p-6">
-                    <div className="flex flex-col items-center gap-1">
-                      <X className="w-5 h-5 text-red-500" />
-                      <span className="text-sm text-muted-foreground">Not Available</span>
-                    </div>
-                  </td>
-                </tr>
-                <tr className="border-b border-border hover:bg-secondary/10 transition-colors">
-                  <td className="p-6 font-medium">Learning Resources</td>
-                  <td className="text-center p-6">
-                    <div className="flex flex-col items-center gap-1">
-                      <Check className="w-5 h-5 text-green-500" />
-                      <span className="text-sm text-primary font-semibold">Integrated</span>
-                    </div>
-                  </td>
-                  <td className="text-center p-6">
-                    <div className="flex flex-col items-center gap-1">
-                      <X className="w-5 h-5 text-red-500" />
-                      <span className="text-sm text-muted-foreground">External Only</span>
-                    </div>
-                  </td>
-                </tr>
-                <tr className="border-b border-border hover:bg-secondary/10 transition-colors">
-                  <td className="p-6 font-medium">Code Updates</td>
-                  <td className="text-center p-6">
-                    <div className="flex flex-col items-center gap-1">
-                      <Check className="w-5 h-5 text-green-500" />
-                      <span className="text-sm text-primary font-semibold">Automatic</span>
-                    </div>
-                  </td>
-                  <td className="text-center p-6">
-                    <div className="flex flex-col items-center gap-1">
-                      <Clock className="w-5 h-5 text-muted-foreground" />
-                      <span className="text-sm text-muted-foreground">Manual</span>
-                    </div>
-                  </td>
-                </tr>
-                <tr className="border-b border-border hover:bg-secondary/10 transition-colors">
-                  <td className="p-6 font-medium">Accuracy Check</td>
-                  <td className="text-center p-6">
-                    <div className="flex flex-col items-center gap-1">
-                      <Check className="w-5 h-5 text-green-500" />
-                      <span className="text-sm text-primary font-semibold">AI-Powered</span>
-                    </div>
-                  </td>
-                  <td className="text-center p-6">
-                    <div className="flex flex-col items-center gap-1">
-                      <X className="w-5 h-5 text-red-500" />
-                      <span className="text-sm text-muted-foreground">Manual Review</span>
-                    </div>
-                  </td>
-                </tr>
-                <tr className="hover:bg-secondary/10 transition-colors">
-                  <td className="p-6 font-medium">Time Saved</td>
-                  <td className="text-center p-6">
-                    <div className="flex flex-col items-center gap-1">
-                      <Zap className="w-5 h-5 text-primary" />
-                      <span className="text-sm text-primary font-semibold">Up to 40%</span>
-                    </div>
-                  </td>
-                  <td className="text-center p-6">
-                    <div className="flex flex-col items-center gap-1">
-                      <span className="text-sm text-muted-foreground">-</span>
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+        {/* Comparison Cards Grid */}
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-6xl mx-auto">
+          {/* Card 1 */}
+          <div className="group relative overflow-hidden rounded-xl border border-border bg-gradient-to-br from-card to-card/50 p-5 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/10 transition-all">
+            <div className="mb-3">
+              <h3 className="text-sm font-semibold text-muted-foreground mb-2">Search Speed</h3>
+            </div>
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex flex-col items-center flex-1 p-3 rounded-lg bg-primary/5 border border-primary/20">
+                <Check className="w-6 h-6 text-primary mb-1" />
+                <span className="text-xs font-medium text-primary">Instant</span>
+                <span className="text-[10px] text-muted-foreground">AccuCoder</span>
+              </div>
+              <div className="flex flex-col items-center flex-1 p-3 rounded-lg bg-muted/30">
+                <Clock className="w-6 h-6 text-muted-foreground mb-1" />
+                <span className="text-xs font-medium text-muted-foreground">Minutes</span>
+                <span className="text-[10px] text-muted-foreground">Traditional</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Card 2 */}
+          <div className="group relative overflow-hidden rounded-xl border border-border bg-gradient-to-br from-card to-card/50 p-5 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/10 transition-all">
+            <div className="mb-3">
+              <h3 className="text-sm font-semibold text-muted-foreground mb-2">AI Assistance</h3>
+            </div>
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex flex-col items-center flex-1 p-3 rounded-lg bg-primary/5 border border-primary/20">
+                <Check className="w-6 h-6 text-primary mb-1" />
+                <span className="text-xs font-medium text-primary">24/7</span>
+                <span className="text-[10px] text-muted-foreground">AccuCoder</span>
+              </div>
+              <div className="flex flex-col items-center flex-1 p-3 rounded-lg bg-muted/30">
+                <X className="w-6 h-6 text-red-500 mb-1" />
+                <span className="text-xs font-medium text-muted-foreground">None</span>
+                <span className="text-[10px] text-muted-foreground">Traditional</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Card 3 */}
+          <div className="group relative overflow-hidden rounded-xl border border-border bg-gradient-to-br from-card to-card/50 p-5 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/10 transition-all">
+            <div className="mb-3">
+              <h3 className="text-sm font-semibold text-muted-foreground mb-2">Learning Resources</h3>
+            </div>
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex flex-col items-center flex-1 p-3 rounded-lg bg-primary/5 border border-primary/20">
+                <Check className="w-6 h-6 text-primary mb-1" />
+                <span className="text-xs font-medium text-primary">Integrated</span>
+                <span className="text-[10px] text-muted-foreground">AccuCoder</span>
+              </div>
+              <div className="flex flex-col items-center flex-1 p-3 rounded-lg bg-muted/30">
+                <X className="w-6 h-6 text-red-500 mb-1" />
+                <span className="text-xs font-medium text-muted-foreground">External</span>
+                <span className="text-[10px] text-muted-foreground">Traditional</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Card 4 */}
+          <div className="group relative overflow-hidden rounded-xl border border-border bg-gradient-to-br from-card to-card/50 p-5 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/10 transition-all">
+            <div className="mb-3">
+              <h3 className="text-sm font-semibold text-muted-foreground mb-2">Code Updates</h3>
+            </div>
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex flex-col items-center flex-1 p-3 rounded-lg bg-primary/5 border border-primary/20">
+                <Check className="w-6 h-6 text-primary mb-1" />
+                <span className="text-xs font-medium text-primary">Automatic</span>
+                <span className="text-[10px] text-muted-foreground">AccuCoder</span>
+              </div>
+              <div className="flex flex-col items-center flex-1 p-3 rounded-lg bg-muted/30">
+                <Clock className="w-6 h-6 text-muted-foreground mb-1" />
+                <span className="text-xs font-medium text-muted-foreground">Manual</span>
+                <span className="text-[10px] text-muted-foreground">Traditional</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Card 5 */}
+          <div className="group relative overflow-hidden rounded-xl border border-border bg-gradient-to-br from-card to-card/50 p-5 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/10 transition-all">
+            <div className="mb-3">
+              <h3 className="text-sm font-semibold text-muted-foreground mb-2">Accuracy Check</h3>
+            </div>
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex flex-col items-center flex-1 p-3 rounded-lg bg-primary/5 border border-primary/20">
+                <Check className="w-6 h-6 text-primary mb-1" />
+                <span className="text-xs font-medium text-primary">AI-Powered</span>
+                <span className="text-[10px] text-muted-foreground">AccuCoder</span>
+              </div>
+              <div className="flex flex-col items-center flex-1 p-3 rounded-lg bg-muted/30">
+                <X className="w-6 h-6 text-red-500 mb-1" />
+                <span className="text-xs font-medium text-muted-foreground">Manual</span>
+                <span className="text-[10px] text-muted-foreground">Traditional</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Card 6 */}
+          <div className="group relative overflow-hidden rounded-xl border border-border bg-gradient-to-br from-card to-card/50 p-5 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/10 transition-all">
+            <div className="mb-3">
+              <h3 className="text-sm font-semibold text-muted-foreground mb-2">Time Saved</h3>
+            </div>
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex flex-col items-center flex-1 p-3 rounded-lg bg-primary/5 border border-primary/20">
+                <Zap className="w-6 h-6 text-primary mb-1" />
+                <span className="text-xs font-medium text-primary">40%</span>
+                <span className="text-[10px] text-muted-foreground">AccuCoder</span>
+              </div>
+              <div className="flex flex-col items-center flex-1 p-3 rounded-lg bg-muted/30">
+                <span className="w-6 h-6 flex items-center justify-center text-muted-foreground mb-1">-</span>
+                <span className="text-xs font-medium text-muted-foreground">Baseline</span>
+                <span className="text-[10px] text-muted-foreground">Traditional</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -779,22 +738,6 @@ export default function Home() {
                 </div>
               </div>
             </div>
-          ))}
-        </div>
-
-        {/* Pagination Dots */}
-        <div className="flex justify-center gap-2 mb-12">
-          {shuffledTestimonials.length > 0 && Array.from({ length: Math.ceil(shuffledTestimonials.length / 3) }).map((_, i) => (
-            <button
-              key={i}
-              onClick={() => setCurrentTestimonialIndex(i * 3)}
-              className={`w-2 h-2 rounded-full transition-all ${
-                Math.floor(currentTestimonialIndex / 3) === i
-                  ? 'bg-primary w-8'
-                  : 'bg-muted-foreground/30 hover:bg-muted-foreground/50'
-              }`}
-              aria-label={`Go to testimonials page ${i + 1}`}
-            />
           ))}
         </div>
 
