@@ -695,7 +695,7 @@ export default function Home() {
             Loved by <span className="bg-gradient-to-r from-primary via-primary/90 to-accent bg-clip-text text-transparent animate-gradient-x">Medical Coders Worldwide</span>
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            100+ professionals from USA, India, UAE & more have transformed their workflow
+            Trusted by professionals from USA, India, UAE & more who have transformed their workflow
           </p>
         </div>
 
@@ -756,19 +756,19 @@ export default function Home() {
         {/* Stats Below Testimonials */}
         <div className="grid md:grid-cols-4 gap-6 max-w-5xl mx-auto mt-16">
           <div className="text-center p-6 rounded-xl bg-gradient-to-br from-primary/8 to-accent/8 border border-primary/15">
-            <p className="text-4xl font-bold bg-gradient-to-r from-primary via-primary/90 to-accent bg-clip-text text-transparent mb-2">500+</p>
+            <p className="text-4xl font-bold bg-gradient-to-r from-primary via-primary/90 to-accent bg-clip-text text-transparent mb-2">150+</p>
             <p className="text-sm text-muted-foreground">Active Users</p>
           </div>
           <div className="text-center p-6 rounded-xl bg-gradient-to-br from-primary/8 to-accent/8 border border-primary/15">
-            <p className="text-4xl font-bold bg-gradient-to-r from-primary via-primary/90 to-accent bg-clip-text text-transparent mb-2">98%</p>
+            <p className="text-4xl font-bold bg-gradient-to-r from-primary via-primary/90 to-accent bg-clip-text text-transparent mb-2">92%</p>
             <p className="text-sm text-muted-foreground">Satisfaction Rate</p>
           </div>
           <div className="text-center p-6 rounded-xl bg-gradient-to-br from-primary/8 to-accent/8 border border-primary/15">
-            <p className="text-4xl font-bold bg-gradient-to-r from-primary via-primary/90 to-accent bg-clip-text text-transparent mb-2">4.9/5</p>
+            <p className="text-4xl font-bold bg-gradient-to-r from-primary via-primary/90 to-accent bg-clip-text text-transparent mb-2">4.6/5</p>
             <p className="text-sm text-muted-foreground">Average Rating</p>
           </div>
           <div className="text-center p-6 rounded-xl bg-gradient-to-br from-primary/8 to-accent/8 border border-primary/15">
-            <p className="text-4xl font-bold bg-gradient-to-r from-primary via-primary/90 to-accent bg-clip-text text-transparent mb-2">100+</p>
+            <p className="text-4xl font-bold bg-gradient-to-r from-primary via-primary/90 to-accent bg-clip-text text-transparent mb-2">85+</p>
             <p className="text-sm text-muted-foreground">Reviews</p>
           </div>
         </div>
