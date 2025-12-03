@@ -7,12 +7,12 @@ import { useRouter, useSearchParams } from 'next/navigation'
 interface DrugChemicalRow {
   _id: string
   substance: string
-  poisoningAccidental: string
-  poisoningIntentional: string
-  poisoningAssault: string
-  poisoningUndetermined: string
-  adverseEffect: string
-  underdosing: string
+  poisoningAccidentalUnintentional?: string
+  poisoningIntentionalSelfHarm?: string
+  poisoningAssault?: string
+  poisoningUndetermined?: string
+  adverseEffect?: string
+  underdosing?: string
 }
 
 export default function DrugsTablePage() {
@@ -75,11 +75,11 @@ export default function DrugsTablePage() {
     if (searchTerm) {
       filtered = data.filter(row =>
         row.substance.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        row.poisoning_accidental_unintentional?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        row.poisoning_intentional_self_harm?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        row.poisoning_assault?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        row.poisoning_undetermined?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        row.adverse_effect?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        row.poisoningAccidentalUnintentional?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        row.poisoningIntentionalSelfHarm?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        row.poisoningAssault?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        row.poisoningUndetermined?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        row.adverseEffect?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         row.underdosing?.toLowerCase().includes(searchTerm.toLowerCase())
       )
     }
@@ -238,7 +238,7 @@ export default function DrugsTablePage() {
           <div className="bg-background">
             {filteredByLetter.map((row, index) => (
               <div
-                key={row.id}
+                key={row._id}
                 className={`grid grid-cols-7 gap-0 text-sm border-b border-border hover:bg-secondary/20 transition-colors ${
                   index === 0 ? 'bg-secondary/10' : ''
                 }`}
@@ -246,33 +246,33 @@ export default function DrugsTablePage() {
                 <div className="px-4 py-2.5 text-foreground border-r border-border">{row.substance}</div>
                 <div 
                   className="px-4 py-2.5 text-center text-primary font-mono text-xs border-r border-border cursor-pointer hover:bg-primary/10 transition-colors"
-                  onClick={() => handleCodeClick(row.poisoning_accidental_unintentional || '')}
+                  onClick={() => handleCodeClick(row.poisoningAccidentalUnintentional || '')}
                 >
-                  {row.poisoning_accidental_unintentional || '-'}
+                  {row.poisoningAccidentalUnintentional || '-'}
                 </div>
                 <div 
                   className="px-4 py-2.5 text-center text-primary font-mono text-xs border-r border-border cursor-pointer hover:bg-primary/10 transition-colors"
-                  onClick={() => handleCodeClick(row.poisoning_intentional_self_harm || '')}
+                  onClick={() => handleCodeClick(row.poisoningIntentionalSelfHarm || '')}
                 >
-                  {row.poisoning_intentional_self_harm || '-'}
+                  {row.poisoningIntentionalSelfHarm || '-'}
                 </div>
                 <div 
                   className="px-4 py-2.5 text-center text-primary font-mono text-xs border-r border-border cursor-pointer hover:bg-primary/10 transition-colors"
-                  onClick={() => handleCodeClick(row.poisoning_assault || '')}
+                  onClick={() => handleCodeClick(row.poisoningAssault || '')}
                 >
-                  {row.poisoning_assault || '-'}
+                  {row.poisoningAssault || '-'}
                 </div>
                 <div 
                   className="px-4 py-2.5 text-center text-primary font-mono text-xs border-r border-border cursor-pointer hover:bg-primary/10 transition-colors"
-                  onClick={() => handleCodeClick(row.poisoning_undetermined || '')}
+                  onClick={() => handleCodeClick(row.poisoningUndetermined || '')}
                 >
-                  {row.poisoning_undetermined || '-'}
+                  {row.poisoningUndetermined || '-'}
                 </div>
                 <div 
                   className="px-4 py-2.5 text-center text-primary font-mono text-xs border-r border-border cursor-pointer hover:bg-primary/10 transition-colors"
-                  onClick={() => handleCodeClick(row.adverse_effect || '')}
+                  onClick={() => handleCodeClick(row.adverseEffect || '')}
                 >
-                  {row.adverse_effect || '-'}
+                  {row.adverseEffect || '-'}
                 </div>
                 <div 
                   className="px-4 py-2.5 text-center text-primary font-mono text-xs cursor-pointer hover:bg-primary/10 transition-colors"

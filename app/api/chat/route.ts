@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Groq from 'groq-sdk'
-import { createClient } from '@supabase/supabase-js'
+import connectDB from '@/lib/mongodb'
+import DrugChemical from '@/lib/models/DrugChemical'
 
 // Multiple API keys for rotation (add more as needed)
 const GROQ_API_KEYS = [
@@ -22,11 +23,6 @@ const getGroqClient = () => {
   
   return new Groq({ apiKey })
 }
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
 
 const SYSTEM_PROMPT = `You are AccuBot, the AI assistant for AccuCoder - the ultimate medical coding tool designed for healthcare professionals. AccuCoder provides comprehensive ICD-10-CM codes, CPT codes, medical billing guidance, and coding compliance tools.
 
@@ -209,15 +205,19 @@ export async function POST(request: NextRequest) {
     let databaseContext = ''
     if (lastUserMessage.length > 2) {
       try {
-        const { data: drugData } = await supabase
-          .from('drugs_and_chemicals')
-          .select('substance, poisoning_accidental_unintentional, poisoning_intentional_self_harm, adverse_effect')
-          .or(`substance.ilike.%${lastUserMessage}%,poisoning_accidental_unintentional.ilike.%${lastUserMessage}%,poisoning_intentional_self_harm.ilike.%${lastUserMessage}%,adverse_effect.ilike.%${lastUserMessage}%`)
-          .limit(5)
+        await connectDB()
+        const drugData = await DrugChemical.find({
+          $or: [
+            { substance: { $regex: lastUserMessage, $options: 'i' } },
+            { poisoningAccidentalUnintentional: { $regex: lastUserMessage, $options: 'i' } },
+            { poisoningIntentionalSelfHarm: { $regex: lastUserMessage, $options: 'i' } },
+            { adverseEffect: { $regex: lastUserMessage, $options: 'i' } }
+          ]
+        }).limit(5).lean()
 
         if (drugData && drugData.length > 0) {
-          databaseContext = `\n\nRELEVANT DATABASE RESULTS:\n${drugData.map(row => 
-            `${row.substance}: Accidental Poisoning=${row.poisoning_accidental_unintentional}, Intentional=${row.poisoning_intentional_self_harm}, Adverse Effect=${row.adverse_effect}`
+          databaseContext = `\n\nRELEVANT DATABASE RESULTS:\n${drugData.map((row: any) => 
+            `${row.substance}: Accidental Poisoning=${row.poisoningAccidentalUnintentional}, Intentional=${row.poisoningIntentionalSelfHarm}, Adverse Effect=${row.adverseEffect}`
           ).join('\n')}`
         }
       } catch (dbError) {

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { connectDB } from '@/lib/mongodb'
+import connectDB from '@/lib/mongodb'
 import Review from '@/lib/models/Review'
 
 export async function POST(request: NextRequest) {
