@@ -2,8 +2,18 @@
 
 import { useState, useEffect, useMemo } from 'react'
 import { Search, Loader2, ChevronDown } from 'lucide-react'
-import { supabase, type DrugChemicalRow } from '@/lib/supabase'
 import { useRouter, useSearchParams } from 'next/navigation'
+
+interface DrugChemicalRow {
+  _id: string
+  substance: string
+  poisoningAccidental: string
+  poisoningIntentional: string
+  poisoningAssault: string
+  poisoningUndetermined: string
+  adverseEffect: string
+  underdosing: string
+}
 
 export default function DrugsTablePage() {
   const router = useRouter()
@@ -28,23 +38,19 @@ export default function DrugsTablePage() {
     }
   }
 
-  // Fetch data from Supabase
+  // Fetch data from MongoDB API
   useEffect(() => {
     async function fetchData() {
       try {
         setLoading(true)
         
-        const { data: rows, error, count } = await supabase
-          .from('drugs_and_chemicals')
-          .select('*', { count: 'exact' })
-          .order('substance', { ascending: true })
-
-        if (error) {
-          console.error('Supabase error:', error)
-          throw error
+        const response = await fetch('/api/drugs')
+        if (!response.ok) {
+          throw new Error('Failed to fetch drugs data')
         }
-
-        setData(rows || [])
+        
+        const { drugs } = await response.json()
+        setData(drugs || [])
       } catch (err) {
         console.error('Error fetching data:', err)
         setError(err instanceof Error ? err.message : 'Failed to load data')

@@ -32,7 +32,6 @@ import {
 import { useState, useEffect } from 'react'
 import { getRandomTestimonialSet, type Testimonial } from '@/lib/testimonials-data'
 import PublicNavbar from '@/components/public-navbar'
-import { supabase } from '@/lib/supabase'
 
 // Get Started Button Component
 function GetStartedButton() {
@@ -41,16 +40,14 @@ function GetStartedButton() {
 
   useEffect(() => {
     const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession()
-      setIsLoggedIn(!!session)
+      try {
+        const response = await fetch('/api/auth/session')
+        setIsLoggedIn(response.ok)
+      } catch (error) {
+        setIsLoggedIn(false)
+      }
     }
     checkAuth()
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setIsLoggedIn(!!session)
-    })
-
-    return () => subscription.unsubscribe()
   }, [])
 
   return (
@@ -74,6 +71,7 @@ export default function Home() {
   const [email, setEmail] = useState('')
   const [shuffledTestimonials, setShuffledTestimonials] = useState<Testimonial[]>([])
   const [currentTestimonialIndex, setCurrentTestimonialIndex] = useState(0)
+  const [testimonialsVisible, setTestimonialsVisible] = useState(false)
   const [showReviewModal, setShowReviewModal] = useState(false)
   const [reviewForm, setReviewForm] = useState({
     name: '',
@@ -93,9 +91,34 @@ export default function Home() {
     setShuffledTestimonials(shuffled)
   }, [])
 
-  // Auto-rotate testimonials every 5 seconds
+  // Set up intersection observer to detect when testimonials section is visible
   useEffect(() => {
-    if (shuffledTestimonials.length === 0) return
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setTestimonialsVisible(true)
+          }
+        })
+      },
+      { threshold: 0.2 }
+    )
+
+    const section = document.getElementById('testimonials-section')
+    if (section) {
+      observer.observe(section)
+    }
+
+    return () => {
+      if (section) {
+        observer.unobserve(section)
+      }
+    }
+  }, [])
+
+  // Auto-rotate testimonials every 10 seconds (only when visible)
+  useEffect(() => {
+    if (shuffledTestimonials.length === 0 || !testimonialsVisible) return
     
     const interval = setInterval(() => {
       setCurrentTestimonialIndex((prev) => {
@@ -103,9 +126,9 @@ export default function Home() {
         const nextIndex = prev + 3
         return nextIndex >= shuffledTestimonials.length ? 0 : nextIndex
       })
-    }, 5000)
+    }, 10000)
     return () => clearInterval(interval)
-  }, [shuffledTestimonials])
+  }, [shuffledTestimonials, testimonialsVisible])
 
   const handleReviewSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

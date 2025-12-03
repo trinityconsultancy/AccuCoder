@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { connectDB } from '@/lib/mongodb'
+import Review from '@/lib/models/Review'
 
 export async function POST(request: NextRequest) {
   try {
+    await connectDB()
     console.log('POST /api/reviews - Request received')
     
     const body = await request.json()
@@ -46,9 +48,9 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Check if Supabase is configured
-    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-      console.error('Supabase not configured')
+    // Check if MongoDB is configured
+    if (!process.env.MONGODB_URI) {
+      console.error('MongoDB not configured')
       return NextResponse.json(
         { error: 'Database not configured. Please contact support.' },
         { status: 503 }
@@ -57,36 +59,22 @@ export async function POST(request: NextRequest) {
 
     console.log('Inserting review into database...')
     
-    // Insert review into database
-    const { data, error } = await supabase
-      .from('user_reviews')
-      .insert([
-        {
-          name,
-          email,
-          role,
-          location,
-          country,
-          rating,
-          comment,
-          status: 'pending',
-          created_at: new Date().toISOString()
-        }
-      ])
-      .select()
+    // Insert review into MongoDB
+    const review = await Review.create({
+      name,
+      email,
+      role,
+      location,
+      country,
+      rating,
+      comment,
+      status: 'pending'
+    })
 
-    if (error) {
-      console.error('Supabase error:', error)
-      return NextResponse.json(
-        { error: `Database error: ${error.message}`, details: error },
-        { status: 500 }
-      )
-    }
-
-    console.log('Review submitted successfully:', data)
+    console.log('Review submitted successfully:', review)
     
     return NextResponse.json(
-      { message: 'Review submitted successfully', data },
+      { message: 'Review submitted successfully', data: review },
       { status: 201 }
     )
   } catch (error) {
@@ -100,36 +88,26 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
+    await connectDB()
     const { searchParams } = new URL(request.url)
     const status = searchParams.get('status')
     const admin = searchParams.get('admin') // admin=true fetches all reviews
 
-    let query = supabase
-      .from('user_reviews')
-      .select('*')
-      .order('created_at', { ascending: false })
+    let query: any = {}
 
     // If admin parameter is not set, only return approved reviews by default
     if (!admin) {
-      query = query.eq('status', 'approved')
+      query.status = 'approved'
     }
 
     // If status is specified, filter by that status (overrides admin default)
     if (status) {
-      query = query.eq('status', status)
+      query.status = status
     }
 
-    const { data, error } = await query
+    const reviews = await Review.find(query).sort({ createdAt: -1 }).lean()
 
-    if (error) {
-      console.error('Supabase error:', error)
-      return NextResponse.json(
-        { error: 'Failed to fetch reviews' },
-        { status: 500 }
-      )
-    }
-
-    return NextResponse.json({ reviews: data }, { status: 200 })
+    return NextResponse.json({ reviews }, { status: 200 })
   } catch (error) {
     console.error('Error fetching reviews:', error)
     return NextResponse.json(

@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { supabase } from '@/lib/supabase'
 import { ArrowRight, Loader2, Mail, CheckCircle2 } from 'lucide-react'
 import PublicNavbar from '@/components/public-navbar'
 
@@ -16,11 +15,16 @@ export default function LoginPage() {
   // Check if user is already logged in
   useEffect(() => {
     const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession()
-      if (session) {
-        // User is already logged in, redirect to app
-        router.push('/dashboard')
-      } else {
+      try {
+        const response = await fetch('/api/auth/session')
+        if (response.ok) {
+          // User is already logged in, redirect to app
+          router.replace('/dashboard')
+        } else {
+          setChecking(false)
+        }
+      } catch (err) {
+        console.error('Auth check error:', err)
         setChecking(false)
       }
     }
@@ -52,28 +56,27 @@ export default function LoginPage() {
         throw new Error('Please enter email and password')
       }
 
-      // IMPORTANT: Set Remember Me preference BEFORE signing in
-      // This ensures the custom storage in supabase.ts uses the correct storage type
-      if (formData.rememberMe) {
-        localStorage.setItem('accucoder_remember_me', 'true')
-      } else {
-        localStorage.removeItem('accucoder_remember_me')
-        // Clear any existing session from localStorage
-        localStorage.removeItem('accucoder-auth')
-      }
-      
-      const { data, error: signInError } = await supabase.auth.signInWithPassword({
-        email: formData.email,
-        password: formData.password,
+      // Login with MongoDB API
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+          rememberMe: formData.rememberMe,
+        }),
       })
 
-      if (signInError) throw signInError
+      const data = await response.json()
 
-      if (data.user) {
-        // Password correct, redirect to app
-        router.push('/dashboard')
-        router.refresh() // Force a refresh to update layout state
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to log in')
       }
+
+      // Login successful, redirect to dashboard
+      router.replace('/dashboard')
     } catch (err) {
       console.error('Login error:', err)
       setError(err instanceof Error ? err.message : 'Failed to log in')

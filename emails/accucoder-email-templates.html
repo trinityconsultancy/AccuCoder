@@ -1,0 +1,134 @@
+<!-- AccuCoder Email Templates -->
+<!-- Use {{ .ConfirmationURL }}, {{ .SiteURL }}, {{ .Email }}, {{ .NewEmail }}, {{ .Token }} as variables -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AccuCoder Email Templates</title>
+  <style>
+    body {
+      background: #f7f8fa;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      color: #222;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 480px;
+      margin: 40px auto;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 24px 0 rgba(0,0,0,0.07);
+      padding: 32px 28px 28px 28px;
+      border: 1px solid #e5e7eb;
+    }
+    .logo {
+      display: block;
+      margin: 0 auto 24px auto;
+      height: 48px;
+    }
+    h2 {
+      color: #1e293b;
+      font-size: 1.5rem;
+      margin-bottom: 12px;
+      font-weight: 700;
+      letter-spacing: -1px;
+    }
+    p {
+      color: #475569;
+      font-size: 1rem;
+      margin: 12px 0;
+    }
+    a.button {
+      display: inline-block;
+      margin-top: 18px;
+      padding: 12px 28px;
+      background: linear-gradient(90deg, #6366f1 0%, #06b6d4 100%);
+      color: #fff !important;
+      border-radius: 8px;
+      font-weight: 600;
+      text-decoration: none;
+      font-size: 1rem;
+      box-shadow: 0 2px 8px 0 rgba(99,102,241,0.08);
+      transition: background 0.2s;
+    }
+    a.button:hover {
+      background: linear-gradient(90deg, #06b6d4 0%, #6366f1 100%);
+    }
+    .footer {
+      margin-top: 32px;
+      text-align: center;
+      color: #94a3b8;
+      font-size: 0.95rem;
+    }
+    .token-box {
+      background: #f1f5f9;
+      color: #0f172a;
+      font-size: 1.25rem;
+      font-weight: 600;
+      padding: 16px 0;
+      border-radius: 8px;
+      letter-spacing: 2px;
+      text-align: center;
+      margin: 18px 0 8px 0;
+    }
+  </style>
+</head>
+<body>
+  <!-- Confirm Email -->
+  <div class="container">
+    <img src="https://accucoder.trinityconsultancy.in/images/design-mode/AccuCoder.png" alt="AccuCoder Logo" class="logo" />
+    <h2>Confirm your signup</h2>
+    <p>Follow this link to confirm your user:</p>
+    <p><a href="{{ .ConfirmationURL }}" class="button">Confirm your mail</a></p>
+    <div class="footer">&copy; {{year}} AccuCoder. All rights reserved.</div>
+  </div>
+
+  <!-- Invite User -->
+  <div class="container">
+    <img src="https://accucoder.trinityconsultancy.in/images/design-mode/AccuCoder.png" alt="AccuCoder Logo" class="logo" />
+    <h2>You have been invited</h2>
+    <p>You have been invited to create a user on {{ .SiteURL }}. Follow this link to accept the invite:</p>
+    <p><a href="{{ .ConfirmationURL }}" class="button">Accept the invite</a></p>
+    <div class="footer">&copy; {{year}} AccuCoder. All rights reserved.</div>
+  </div>
+
+  <!-- Magic Link (OTP) -->
+  <div class="container">
+    <img src="https://accucoder.trinityconsultancy.in/images/design-mode/AccuCoder.png" alt="AccuCoder Logo" class="logo" />
+    <h2>Magic Link</h2>
+    <p>Follow this link to login:</p>
+    <p><a href="{{ .ConfirmationURL }}" class="button">Log In</a></p>
+    <div class="footer">&copy; {{year}} AccuCoder. All rights reserved.</div>
+  </div>
+
+  <!-- Change Email -->
+  <div class="container">
+    <img src="https://accucoder.trinityconsultancy.in/images/design-mode/AccuCoder.png" alt="AccuCoder Logo" class="logo" />
+    <h2>Confirm Change of Email</h2>
+    <p>Follow this link to confirm the update of your email from <b>{{ .Email }}</b> to <b>{{ .NewEmail }}</b>:</p>
+    <p><a href="{{ .ConfirmationURL }}" class="button">Change Email</a></p>
+    <div class="footer">&copy; {{year}} AccuCoder. All rights reserved.</div>
+  </div>
+
+  <!-- Reset Password -->
+  <div class="container">
+    <img src="https://accucoder.trinityconsultancy.in/images/design-mode/AccuCoder.png" alt="AccuCoder Logo" class="logo" />
+    <h2>Reset Password</h2>
+    <p>Follow this link to reset the password for your user:</p>
+    <p><a href="{{ .ConfirmationURL }}" class="button">Reset Password</a></p>
+    <div class="footer">&copy; {{year}} AccuCoder. All rights reserved.</div>
+  </div>
+
+  <!-- Reauthentication -->
+  <div class="container">
+    <img src="https://accucoder.trinityconsultancy.in/images/design-mode/AccuCoder.png" alt="AccuCoder Logo" class="logo" />
+    <h2>Confirm reauthentication</h2>
+    <p>Enter the code below to continue:</p>
+    <div class="token-box">{{ .Token }}</div>
+    <div class="footer">&copy; {{year}} AccuCoder. All rights reserved.</div>
+  </div>
+</body>
+</html>

@@ -3,29 +3,31 @@
 import Link from "next/link"
 import { motion, AnimatePresence } from "framer-motion"
 import { useState, useEffect, useRef } from "react"
-import { Search, User, NotepadText, BookOpen, ChevronDown, LogOut, Settings } from "lucide-react"
+import { Search, User, NotepadText, BookOpen, ChevronDown, LogOut, Settings, Home } from "lucide-react"
 import { NotesDropdown } from "./notes-modal"
-import { supabase } from "@/lib/supabase"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 
 interface UserProfile {
-  first_name: string
-  last_name: string
+  firstName: string
+  lastName: string
   email: string
   organization: string | null
   position: string | null
-  aapc_id: string | null
-  ahima_id: string | null
+  aapcId: string | null
+  ahimaId: string | null
   role: string | null
 }
 
 export function TopNavbar() {
   const router = useRouter()
+  const pathname = usePathname()
+  const isDashboard = pathname === '/dashboard'
   const [placeholderIndex, setPlaceholderIndex] = useState(0)
   const [notesOpen, setNotesOpen] = useState(false)
   const [booksOpen, setBooksOpen] = useState(false)
   const [searchValue, setSearchValue] = useState("")
   const [hasSearched, setHasSearched] = useState(false)
+  const [showSearchBar, setShowSearchBar] = useState(false)
   const [profileOpen, setProfileOpen] = useState(false)
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
   const notesButtonRef = useRef<HTMLButtonElement>(null)
@@ -65,18 +67,16 @@ export function TopNavbar() {
   // Fetch user profile
   useEffect(() => {
     const fetchUserProfile = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      
-      if (user) {
-        const { data: profile } = await supabase
-          .from('user_profiles')
-          .select('*')
-          .eq('id', user.id)
-          .single()
-        
-        if (profile) {
-          setUserProfile(profile)
+      try {
+        const response = await fetch('/api/users/profile')
+        if (response.ok) {
+          const data = await response.json()
+          if (data.profile) {
+            setUserProfile(data.profile)
+          }
         }
+      } catch (error) {
+        console.error('Failed to fetch profile:', error)
       }
     }
 
@@ -85,13 +85,15 @@ export function TopNavbar() {
 
   // Handle logout
   const handleLogout = async () => {
-    await supabase.auth.signOut()
-    // Clear Remember Me preference
-    localStorage.removeItem('accucoder_remember_me')
-    // Clear auth tokens from both storages
-    localStorage.removeItem('accucoder-auth')
-    sessionStorage.removeItem('accucoder-auth')
-    router.push('/')
+    try {
+      await fetch('/api/auth/logout', {
+        method: 'POST',
+      })
+    } catch (error) {
+      console.error('Logout error:', error)
+    } finally {
+      router.push('/')
+    }
   }
 
   // Close dropdowns when clicking outside
@@ -110,21 +112,31 @@ export function TopNavbar() {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  // Listen for search events from AccuBot
+  // Listen for search events from AccuBot and Dashboard
   useEffect(() => {
     const handleSearchFromBot = (event: CustomEvent) => {
       const searchTerm = event.detail.searchTerm
       setSearchValue(searchTerm)
       setHasSearched(true)
-      // Focus the search input
+      setShowSearchBar(true)
       searchInputRef.current?.focus()
-      // Optionally select all text
+      searchInputRef.current?.select()
+    }
+
+    const handleSearchFromDashboard = (event: CustomEvent) => {
+      const searchTerm = event.detail.searchTerm
+      setSearchValue(searchTerm)
+      setHasSearched(true)
+      setShowSearchBar(true)
+      searchInputRef.current?.focus()
       searchInputRef.current?.select()
     }
 
     window.addEventListener('accubot-search' as any, handleSearchFromBot as any)
+    window.addEventListener('dashboard-search' as any, handleSearchFromDashboard as any)
     return () => {
       window.removeEventListener('accubot-search' as any, handleSearchFromBot as any)
+      window.removeEventListener('dashboard-search' as any, handleSearchFromDashboard as any)
     }
   }, [])
 
@@ -190,43 +202,53 @@ export function TopNavbar() {
             </motion.div>
           </Link>
 
-          {/* Center: Search Bar */}
-          <div className="flex-1 max-w-2xl">
-            <div className="relative">
-              <div className="flex items-center bg-secondary/40 border-2 border-border hover:border-primary/40 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 rounded-lg transition-all shadow-sm">
-                <div className="flex-1 flex items-center px-3.5 py-2">
-                  <Search className="w-4 h-4 text-foreground/40 mr-2 flex-shrink-0" />
-                  <input
-                    ref={searchInputRef}
-                    type="text"
-                    value={searchValue}
-                    onChange={(e) => {
-                      setSearchValue(e.target.value)
-                      if (e.target.value.length > 0) {
-                        setHasSearched(true)
-                      }
-                    }}
-                    className="w-full bg-transparent border-none text-sm focus:outline-none placeholder-foreground/40 transition-all duration-300"
-                    placeholder={hasSearched ? "Search..." : placeholders[placeholderIndex]}
-                    key={hasSearched ? "static" : placeholderIndex}
-                    style={{
-                      animation: hasSearched ? 'none' : 'fadeIn 0.5s ease-in-out'
-                    }}
-                  />
-                  <style jsx>{`
-                    @keyframes fadeIn {
-                      0% { opacity: 0.3; }
-                      100% { opacity: 1; }
-                    }
-                  `}</style>
+          {/* Center: Search Bar - Hidden on dashboard, animated in after search */}
+          <AnimatePresence>
+            {!isDashboard && showSearchBar && (
+              <motion.div
+                className="flex-1 max-w-2xl"
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.25 }}
+              >
+                <div className="relative">
+                  <div className="flex items-center bg-secondary/40 border-2 border-border hover:border-primary/40 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 rounded-lg transition-all shadow-sm">
+                    <div className="flex-1 flex items-center px-3.5 py-2">
+                      <Search className="w-4 h-4 text-foreground/40 mr-2 flex-shrink-0" />
+                      <input
+                        ref={searchInputRef}
+                        type="text"
+                        value={searchValue}
+                        onChange={(e) => {
+                          setSearchValue(e.target.value)
+                          if (e.target.value.length > 0) {
+                            setHasSearched(true)
+                          }
+                        }}
+                        className="w-full bg-transparent border-none text-sm focus:outline-none placeholder-foreground/40 transition-all duration-300"
+                        placeholder={hasSearched ? "Search..." : placeholders[placeholderIndex]}
+                        key={hasSearched ? "static" : placeholderIndex}
+                        style={{
+                          animation: hasSearched ? 'none' : 'fadeIn 0.5s ease-in-out'
+                        }}
+                      />
+                      <style jsx>{`
+                        @keyframes fadeIn {
+                          0% { opacity: 0.3; }
+                          100% { opacity: 1; }
+                        }
+                      `}</style>
+                    </div>
+                    {/* Keyboard Shortcut Hint */}
+                    <div className="pr-3 flex items-center text-xs text-foreground/30 select-none">
+                      <kbd className="px-2 py-0.5 bg-background/60 border border-border rounded text-[11px] font-mono">/</kbd>
+                    </div>
+                  </div>
                 </div>
-                {/* Keyboard Shortcut Hint */}
-                <div className="pr-3 flex items-center text-xs text-foreground/30 select-none">
-                  <kbd className="px-2 py-0.5 bg-background/60 border border-border rounded text-[11px] font-mono">/</kbd>
-                </div>
-              </div>
-            </div>
-          </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* Right Section: Navigation Links & Actions */}
           <div className="flex items-center gap-6 flex-shrink-0">
@@ -289,6 +311,15 @@ export function TopNavbar() {
               </AnimatePresence>
             </div>
 
+            {/* Home Button */}
+            <Link
+              href="/dashboard"
+              className="flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium text-foreground/70 hover:text-foreground hover:bg-secondary/50 transition-all"
+            >
+              <Home className="w-4 h-4" />
+              <span>Home</span>
+            </Link>
+
             {/* Divider */}
             <div className="h-6 w-px bg-border" />
 
@@ -320,10 +351,10 @@ export function TopNavbar() {
                   {userProfile ? (
                     <div className="flex items-center gap-2">
                       <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-semibold text-sm">
-                        {userProfile.first_name?.[0]}{userProfile.last_name?.[0]}
+                        {userProfile.firstName?.[0]}{userProfile.lastName?.[0]}
                       </div>
                       <span className="text-sm font-medium hidden md:block">
-                        {userProfile.first_name} {userProfile.last_name}
+                        {userProfile.firstName} {userProfile.lastName}
                       </span>
                     </div>
                   ) : (
@@ -340,11 +371,11 @@ export function TopNavbar() {
                     {/* User Info Header */}
                     <div className="flex items-start gap-3 pb-4 border-b border-border">
                       <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-lg">
-                        {userProfile.first_name?.[0]}{userProfile.last_name?.[0]}
+                        {userProfile.firstName?.[0]}{userProfile.lastName?.[0]}
                       </div>
                       <div className="flex-1 min-w-0">
                         <h3 className="font-semibold text-base truncate">
-                          {userProfile.first_name} {userProfile.last_name}
+                          {userProfile.firstName} {userProfile.lastName}
                         </h3>
                         <p className="text-xs text-muted-foreground truncate">{userProfile.email}</p>
                         {userProfile.role === 'superadmin' && (
@@ -375,16 +406,16 @@ export function TopNavbar() {
                         </div>
                       )}
                       <div className="grid grid-cols-2 gap-3">
-                        {userProfile.aapc_id && (
+                        {userProfile.aapcId && (
                           <div>
                             <p className="text-xs text-muted-foreground">AAPC ID</p>
-                            <p className="text-sm font-medium">{userProfile.aapc_id}</p>
+                            <p className="text-sm font-medium">{userProfile.aapcId}</p>
                           </div>
                         )}
-                        {userProfile.ahima_id && (
+                        {userProfile.ahimaId && (
                           <div>
                             <p className="text-xs text-muted-foreground">AHIMA ID</p>
-                            <p className="text-sm font-medium">{userProfile.ahima_id}</p>
+                            <p className="text-sm font-medium">{userProfile.ahimaId}</p>
                           </div>
                         )}
                       </div>

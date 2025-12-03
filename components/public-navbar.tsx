@@ -4,7 +4,6 @@ import { useRouter, usePathname } from 'next/navigation'
 import Image from 'next/image'
 import { Menu, X, User, LogOut, Settings } from 'lucide-react'
 import { useState, useEffect, useRef } from 'react'
-import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 
 interface PublicNavbarProps {
@@ -12,13 +11,13 @@ interface PublicNavbarProps {
 }
 
 interface UserProfile {
-  first_name: string
-  last_name: string
+  firstName: string
+  lastName: string
   email: string
   organization: string | null
   position: string | null
-  aapc_id: string | null
-  ahima_id: string | null
+  aapcId: string | null
+  ahimaId: string | null
   role: string | null
 }
 
@@ -36,45 +35,28 @@ export default function PublicNavbar({ setVideoPlaying }: PublicNavbarProps) {
   // Check authentication status and fetch user profile
   useEffect(() => {
     const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession()
-      setIsLoggedIn(!!session)
-      
-      if (session?.user) {
-        const { data: profile } = await supabase
-          .from('user_profiles')
-          .select('*')
-          .eq('id', session.user.id)
-          .single()
+      try {
+        const response = await fetch('/api/auth/session')
+        setIsLoggedIn(response.ok)
         
-        if (profile) {
-          setUserProfile(profile)
+        if (response.ok) {
+          const profileResponse = await fetch('/api/users/profile')
+          if (profileResponse.ok) {
+            const data = await profileResponse.json()
+            if (data.profile) {
+              setUserProfile(data.profile)
+            }
+          }
+        } else {
+          setUserProfile(null)
         }
-      } else {
+      } catch (error) {
+        console.error('Auth check error:', error)
+        setIsLoggedIn(false)
         setUserProfile(null)
       }
     }
     checkAuth()
-
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      setIsLoggedIn(!!session)
-      
-      if (session?.user) {
-        const { data: profile } = await supabase
-          .from('user_profiles')
-          .select('*')
-          .eq('id', session.user.id)
-          .single()
-        
-        if (profile) {
-          setUserProfile(profile)
-        }
-      } else {
-        setUserProfile(null)
-      }
-    })
-
-    return () => subscription.unsubscribe()
   }, [])
 
   // Handle scroll effect
@@ -88,14 +70,16 @@ export default function PublicNavbar({ setVideoPlaying }: PublicNavbarProps) {
 
   // Handle logout
   const handleLogout = async () => {
-    await supabase.auth.signOut()
-    // Clear Remember Me preference
-    localStorage.removeItem('accucoder_remember_me')
-    // Clear auth tokens from both storages
-    localStorage.removeItem('accucoder-auth')
-    sessionStorage.removeItem('accucoder-auth')
-    setProfileOpen(false)
-    router.push('/')
+    try {
+      await fetch('/api/auth/logout', {
+        method: 'POST',
+      })
+    } catch (error) {
+      console.error('Logout error:', error)
+    } finally {
+      setProfileOpen(false)
+      router.push('/')
+    }
   }
 
   // Close profile dropdown when clicking outside
@@ -227,10 +211,10 @@ export default function PublicNavbar({ setVideoPlaying }: PublicNavbarProps) {
                   >
                     <div className="flex items-center gap-2">
                       <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-semibold text-sm">
-                        {userProfile.first_name?.[0]}{userProfile.last_name?.[0]}
+                        {userProfile.firstName?.[0]}{userProfile.lastName?.[0]}
                       </div>
                       <span className="text-sm font-medium">
-                        {userProfile.first_name} {userProfile.last_name}
+                        {userProfile.firstName} {userProfile.lastName}
                       </span>
                     </div>
                   </button>
@@ -244,11 +228,11 @@ export default function PublicNavbar({ setVideoPlaying }: PublicNavbarProps) {
                       {/* User Info Header */}
                       <div className="flex items-start gap-3 pb-4 border-b border-border">
                         <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-lg">
-                          {userProfile.first_name?.[0]}{userProfile.last_name?.[0]}
+                          {userProfile.firstName?.[0]}{userProfile.lastName?.[0]}
                         </div>
                         <div className="flex-1 min-w-0">
                           <h3 className="font-semibold text-base truncate">
-                            {userProfile.first_name} {userProfile.last_name}
+                            {userProfile.firstName} {userProfile.lastName}
                           </h3>
                           <p className="text-xs text-muted-foreground truncate">{userProfile.email}</p>
                           {userProfile.role === 'superadmin' && (
@@ -279,16 +263,16 @@ export default function PublicNavbar({ setVideoPlaying }: PublicNavbarProps) {
                           </div>
                         )}
                         <div className="grid grid-cols-2 gap-3">
-                          {userProfile.aapc_id && (
+                          {userProfile.aapcId && (
                             <div>
                               <p className="text-xs text-muted-foreground">AAPC ID</p>
-                              <p className="text-sm font-medium">{userProfile.aapc_id}</p>
+                              <p className="text-sm font-medium">{userProfile.aapcId}</p>
                             </div>
                           )}
-                          {userProfile.ahima_id && (
+                          {userProfile.ahimaId && (
                             <div>
                               <p className="text-xs text-muted-foreground">AHIMA ID</p>
-                              <p className="text-sm font-medium">{userProfile.ahima_id}</p>
+                              <p className="text-sm font-medium">{userProfile.ahimaId}</p>
                             </div>
                           )}
                         </div>
@@ -412,11 +396,11 @@ export default function PublicNavbar({ setVideoPlaying }: PublicNavbarProps) {
                 <div className="px-4 py-3 bg-secondary/30 rounded-lg">
                   <div className="flex items-center gap-3 mb-3">
                     <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold">
-                      {userProfile.first_name?.[0]}{userProfile.last_name?.[0]}
+                      {userProfile.firstName?.[0]}{userProfile.lastName?.[0]}
                     </div>
                     <div className="flex-1 min-w-0">
                       <h3 className="font-semibold text-sm truncate">
-                        {userProfile.first_name} {userProfile.last_name}
+                        {userProfile.firstName} {userProfile.lastName}
                       </h3>
                       <p className="text-xs text-muted-foreground truncate">{userProfile.email}</p>
                     </div>

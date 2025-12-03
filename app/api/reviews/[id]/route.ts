@@ -1,10 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+import { connectDB } from '@/lib/mongodb'
+import Review from '@/lib/models/Review'
 
 // PATCH - Update review status (approve/reject)
 export async function PATCH(
@@ -12,6 +8,7 @@ export async function PATCH(
   { params }: { params: { id: string } }
 ) {
   try {
+    await connectDB()
     const { id } = params
     const body = await request.json()
     const { status } = body
@@ -26,45 +23,25 @@ export async function PATCH(
       )
     }
 
-    // Check if Supabase is configured
-    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-      console.error('Supabase not configured')
-      return NextResponse.json(
-        { error: 'Database not configured' },
-        { status: 503 }
-      )
-    }
-
     // Update the review
-    const { data, error } = await supabase
-      .from('user_reviews')
-      .update({ 
-        status,
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', id)
-      .select()
+    const review = await Review.findByIdAndUpdate(
+      id,
+      { status },
+      { new: true }
+    )
 
-    if (error) {
-      console.error('Supabase update error:', error)
-      return NextResponse.json(
-        { error: `Database error: ${error.message}` },
-        { status: 500 }
-      )
-    }
-
-    if (!data || data.length === 0) {
+    if (!review) {
       return NextResponse.json(
         { error: 'Review not found' },
         { status: 404 }
       )
     }
 
-    console.log('Review updated successfully:', data[0])
+    console.log('Review updated successfully:', review)
 
     return NextResponse.json({
       success: true,
-      review: data[0],
+      review,
       message: `Review ${status} successfully`
     })
   } catch (error: any) {
@@ -82,35 +59,15 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
+    await connectDB()
     const { id } = params
 
     console.log(`DELETE /api/reviews/${id}`)
 
-    // Check if Supabase is configured
-    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-      console.error('Supabase not configured')
-      return NextResponse.json(
-        { error: 'Database not configured' },
-        { status: 503 }
-      )
-    }
-
     // Delete the review
-    const { data, error } = await supabase
-      .from('user_reviews')
-      .delete()
-      .eq('id', id)
-      .select()
+    const review = await Review.findByIdAndDelete(id)
 
-    if (error) {
-      console.error('Supabase delete error:', error)
-      return NextResponse.json(
-        { error: `Database error: ${error.message}` },
-        { status: 500 }
-      )
-    }
-
-    if (!data || data.length === 0) {
+    if (!review) {
       return NextResponse.json(
         { error: 'Review not found' },
         { status: 404 }
@@ -138,35 +95,15 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
+    await connectDB()
     const { id } = params
 
     console.log(`GET /api/reviews/${id}`)
 
-    // Check if Supabase is configured
-    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-      console.error('Supabase not configured')
-      return NextResponse.json(
-        { error: 'Database not configured' },
-        { status: 503 }
-      )
-    }
-
     // Get the review
-    const { data, error } = await supabase
-      .from('user_reviews')
-      .select('*')
-      .eq('id', id)
-      .single()
+    const review = await Review.findById(id).lean()
 
-    if (error) {
-      console.error('Supabase query error:', error)
-      return NextResponse.json(
-        { error: `Database error: ${error.message}` },
-        { status: 500 }
-      )
-    }
-
-    if (!data) {
+    if (!review) {
       return NextResponse.json(
         { error: 'Review not found' },
         { status: 404 }
@@ -175,7 +112,7 @@ export async function GET(
 
     return NextResponse.json({
       success: true,
-      review: data
+      review
     })
   } catch (error: any) {
     console.error('Error in GET /api/reviews/[id]:', error)

@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { supabase } from '@/lib/supabase'
 import { ArrowRight, Loader2, CheckCircle2, Eye, EyeOff } from 'lucide-react'
 import PublicNavbar from '@/components/public-navbar'
 
@@ -17,11 +16,15 @@ export default function SignUpPage() {
   // Check if user is already logged in
   useEffect(() => {
     const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession()
-      if (session) {
-        // User is already logged in, redirect to app
-        router.push('/dashboard')
-      } else {
+      try {
+        const response = await fetch('/api/auth/session')
+        if (response.ok) {
+          // User is already logged in, redirect to app
+          router.push('/dashboard')
+        } else {
+          setChecking(false)
+        }
+      } catch (error) {
         setChecking(false)
       }
     }
@@ -112,62 +115,43 @@ export default function SignUpPage() {
         throw new Error('Password must contain at least one special character (!@#$%^&*...)')
       }
 
-      // Sign up with Supabase Auth
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: formData.email,
-        password: formData.password,
-        options: {
-          emailRedirectTo: undefined, // Disable email confirmation for demo
-          data: {
-            first_name: formData.firstName,
-            last_name: formData.lastName,
-          }
-        }
+      // Sign up with MongoDB API
+      const response = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          password: formData.password,
+          confirmPassword: formData.confirmPassword,
+          certificationType: formData.certificationType,
+          certificationTitle: formData.certificationTitle === 'Other' 
+            ? formData.customCertification 
+            : formData.certificationTitle,
+          certificationId: formData.certificationId,
+          organization: formData.organization || null,
+          position: formData.position || null,
+        }),
       })
 
-      if (authError) throw authError
+      const data = await response.json()
 
-      if (authData.user) {
-        // Create user profile
-        const { error: profileError } = await supabase
-          .from('user_profiles')
-          .insert({
-            id: authData.user.id,
-            first_name: formData.firstName,
-            last_name: formData.lastName,
-            email: formData.email,
-            certification_body: formData.certificationType,
-            certification_title: formData.certificationTitle === 'Other' 
-              ? formData.customCertification 
-              : formData.certificationTitle,
-            aapc_id: formData.certificationType === 'AAPC' ? formData.certificationId : null,
-            ahima_id: formData.certificationType === 'AHIMA' ? formData.certificationId : null,
-            organization: formData.organization || null,
-            position: formData.position || null
-          })
-
-        if (profileError) {
-          console.error('Profile creation error:', profileError)
-          throw new Error(`Profile creation failed: ${profileError.message}`)
-        }
-
-        setSuccess(true)
-        
-        // Redirect to login after 2 seconds
-        setTimeout(() => {
-          router.push('/login')
-        }, 2000)
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to sign up')
       }
+
+      setSuccess(true)
+      // Redirect to login after 2 seconds
+      setTimeout(() => {
+        router.push('/login')
+      }, 2000)
     } catch (err) {
       console.error('Signup error:', err)
       const errorMessage = err instanceof Error ? err.message : 'Failed to sign up'
-      
-      // Check if it's an email rate limit error
-      if (errorMessage.includes('rate limit') || errorMessage.includes('magic link')) {
-        setError('Email confirmation is temporarily unavailable. Please disable email confirmation in Supabase Dashboard (Authentication → Providers → Email) or use the Login page if you already have an account.')
-      } else {
-        setError(errorMessage)
-      }
+      setError(errorMessage)
     } finally {
       setLoading(false)
     }

@@ -187,7 +187,7 @@
 @keyframes smooth-fade-slide {
   0% {
     opacity: 0;
-    transform: translateY(30px) scale(0.95);
+    transform: translateY(20px) scale(0.98);
   }
   100% {
     opacity: 1;
@@ -242,7 +242,7 @@
 }
 
 .animate-smooth-fade-slide {
-  animation: smooth-fade-slide 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  animation: smooth-fade-slide 1.2s cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 
 .animate-soft-scale-in {
