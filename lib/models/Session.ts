@@ -37,10 +37,8 @@ const SessionSchema = new Schema<ISession>(
 
 // Create indexes for efficient lookups
 SessionSchema.index({ userId: 1 })
-SessionSchema.index({ token: 1 })
-SessionSchema.index({ expiresAt: 1 })
 
-// Auto-delete expired sessions
+// Auto-delete expired sessions (TTL index)
 SessionSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 })
 
 const Session: Model<ISession> = mongoose.models.Session || mongoose.model<ISession>('Session', SessionSchema)

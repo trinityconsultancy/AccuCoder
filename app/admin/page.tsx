@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   Users,
@@ -18,6 +18,7 @@ import {
   Clock,
   Shield
 } from 'lucide-react'
+import { AdminDashboardSkeleton, ReviewCardSkeleton, StatsCardSkeleton } from '@/components/skeletons'
 
 // Interfaces
 interface UserProfile {
@@ -90,6 +91,7 @@ export default function AdminDashboard() {
 
   async function checkAuth() {
     try {
+      setLoading(true)
       const response = await fetch('/api/auth/session')
       if (!response.ok) {
         router.push('/login')
