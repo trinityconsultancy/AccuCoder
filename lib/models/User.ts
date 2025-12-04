@@ -4,6 +4,13 @@ export interface IUser {
   _id: mongoose.Types.ObjectId
   email: string
   password: string
+  firstName?: string
+  lastName?: string
+  certificationType?: string
+  certificationTitle?: string
+  certificationId?: string
+  organization?: string
+  position?: string
   emailVerified: boolean
   verificationToken?: string
   verificationTokenExpiry?: Date
@@ -28,6 +35,34 @@ const UserSchema = new Schema<IUser>(
       type: String,
       required: [true, 'Password is required'],
       minlength: [8, 'Password must be at least 8 characters'],
+    },
+    firstName: {
+      type: String,
+      trim: true,
+    },
+    lastName: {
+      type: String,
+      trim: true,
+    },
+    certificationType: {
+      type: String,
+      trim: true,
+    },
+    certificationTitle: {
+      type: String,
+      trim: true,
+    },
+    certificationId: {
+      type: String,
+      trim: true,
+    },
+    organization: {
+      type: String,
+      trim: true,
+    },
+    position: {
+      type: String,
+      trim: true,
     },
     emailVerified: {
       type: Boolean,

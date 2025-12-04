@@ -130,6 +130,13 @@ export async function POST(request: NextRequest) {
     const user = await User.create({
       email: data.email,
       password: hashedPassword,
+      firstName: data.firstName,
+      lastName: data.lastName,
+      certificationType: data.certificationType,
+      certificationTitle: data.certificationTitle === 'Other' ? data.customCertification : data.certificationTitle,
+      certificationId: data.certificationId,
+      organization: data.organization,
+      position: data.position,
       emailVerified: false,
       verificationToken,
       verificationTokenExpiry,
