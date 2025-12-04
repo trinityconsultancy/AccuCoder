@@ -44,18 +44,5 @@
         }
       ]
     }
-  ],
-  "redirects": [
-    {
-      "source": "/:path*",
-      "has": [
-        {
-          "type": "host",
-          "value": "www.accucoder.app"
-        }
-      ],
-      "destination": "https://accucoder.app/:path*",
-      "permanent": true
-    }
   ]
 }
