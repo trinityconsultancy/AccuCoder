@@ -2,7 +2,7 @@ import mongoose from 'mongoose'
 import { getEnv } from './env-validation'
 
 const env = getEnv()
-const MONGODB_URI: string = env.MONGODB_URI
+const MONGODB_URI = env.MONGODB_URI || process.env.MONGODB_URI || ''
 
 /**
  * Global is used here to maintain a cached connection across hot reloads

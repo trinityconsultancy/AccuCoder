@@ -22,17 +22,24 @@ export function ButtonPrimary({ href, onClick, children, variant = "primary", cl
     outline: "border-2 border-primary text-primary hover:bg-primary/5",
   }
 
-  const Component = href ? Link : motion.button
+  const classes = `${baseClasses} ${variantClasses[variant]} ${className}`
+
+  if (href) {
+    return (
+      <Link href={href} className={classes}>
+        {children}
+      </Link>
+    )
+  }
 
   return (
-    <Component
-      href={href}
+    <motion.button
       onClick={onClick}
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
-      className={`${baseClasses} ${variantClasses[variant]} ${className}`}
+      className={classes}
     >
       {children}
-    </Component>
+    </motion.button>
   )
 }

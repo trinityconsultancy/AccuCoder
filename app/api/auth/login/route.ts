@@ -7,14 +7,15 @@ import { generateToken, getTokenExpiry } from '@/lib/auth/jwt'
 import { asyncHandler, ValidationError, AuthenticationError, AuthorizationError } from '@/lib/api-error-handler'
 import { withRateLimit, rateLimiters, getClientIdentifier, addRateLimitHeaders } from '@/lib/rate-limiter'
 
-export const POST = asyncHandler(async (request: NextRequest) => {
+export const POST = asyncHandler(async (request: Request) => {
+  const req = request as NextRequest
   // Apply rate limiting
-  const rateLimitResponse = await withRateLimit(request, rateLimiters.auth)
+  const rateLimitResponse = await withRateLimit(req, rateLimiters.auth)
   if (rateLimitResponse) return rateLimitResponse
 
   await connectDB()
 
-  const body = await request.json()
+  const body = await req.json()
   const { email, password, rememberMe } = body
 
   if (!email || !password) {
@@ -58,7 +59,7 @@ export const POST = asyncHandler(async (request: NextRequest) => {
   })
 
   // Get rate limit info for headers
-  const identifier = getClientIdentifier(request)
+  const identifier = getClientIdentifier(req)
   const rateLimitInfo = await rateLimiters.auth.check(identifier)
 
   // Set cookie

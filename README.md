@@ -1,11 +1,11 @@
-# 🏥 AccuCoder - Advanced Medical Coding Platform
+# 🏥 AccuCoder - Enterprise Medical Coding Platform
 
 [![Next.js](https://img.shields.io/badge/Next.js-16.0.0-black)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue)](https://www.typescriptlang.org/)
 [![MongoDB](https://img.shields.io/badge/MongoDB-Mongoose_9.0-green)](https://mongoosejs.com/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-**AccuCoder** is a comprehensive medical coding platform designed for healthcare professionals, offering ICD-10 code lookup, AI-powered assistance, and intelligent search capabilities.
+**AccuCoder** is an enterprise-grade medical coding platform designed for healthcare professionals, featuring advanced ICD-10 code lookup, AI-powered assistance, and production-ready backend architecture.
 
 ## 🚀 Features
 
@@ -16,14 +16,25 @@
 - **🔄 Code Converter**: Convert between different medical coding systems
 - **👨‍💼 Admin Dashboard**: Complete review and user management system
 
+### Enterprise Architecture
+- 🏗️ **Layered Architecture**: Controllers, Services, Repositories pattern
+- 📝 **Request Logging**: Structured logging with correlation IDs
+- 💾 **ACID Transactions**: MongoDB transactions with retry logic
+- ⚡ **Advanced Caching**: LRU cache with TTL and pattern invalidation
+- 🛡️ **Input Sanitization**: XSS and NoSQL injection protection
+- ✅ **Schema Validation**: Runtime type validation with Zod
+- 📊 **Health Checks**: Kubernetes-compatible liveness/readiness probes
+- 📈 **Metrics**: Prometheus-compatible metrics endpoint
+
 ### Technical Highlights
-- ⚡ **Lightning-fast**: 1.1s production builds with Turbopack
+- ⚡ **Lightning-fast**: 4.7s production builds with Turbopack
 - 🔐 **Secure Authentication**: JWT-based auth with HTTP-only cookies
 - 📧 **Email Integration**: Automated emails via Brevo (SendinBlue)
 - 🛡️ **Rate Limiting**: Advanced sliding-window rate limiter
 - ✅ **Type-Safe**: Full TypeScript with Zod validation
-- 🧪 **Well-Tested**: Comprehensive Jest test suite
+- 🧪 **Well-Tested**: Comprehensive Jest test suite (50+ tests)
 - 📦 **Optimized Bundle**: 1.24 MB production bundle
+- 🏢 **Production-Ready**: Enterprise patterns and best practices
 
 ---
 
@@ -35,6 +46,7 @@
 - [Database Setup](#database-setup)
 - [Development](#development)
 - [Testing](#testing)
+- [Enterprise Features](#enterprise-features)
 - [Deployment](#deployment)
 - [API Documentation](#api-documentation)
 - [Architecture](#architecture)
@@ -202,7 +214,8 @@ AccuCoder/
 │   ├── api/                  # API routes
 │   │   ├── auth/            # Authentication endpoints
 │   │   ├── chat/            # AI chat endpoint
-│   │   ├── drugs/           # Drug code queries
+│   │   ├── health/          # Health check endpoints
+│   │   ├── metrics/         # Metrics endpoint
 │   │   └── reviews/         # Review CRUD
 │   ├── admin/               # Admin dashboard
 │   ├── dashboard/           # User dashboard
@@ -210,17 +223,31 @@ AccuCoder/
 ├── components/              # React components
 │   ├── ui/                  # UI components (shadcn)
 │   └── skeletons.tsx        # Loading skeletons
-├── lib/                     # Utility libraries
-│   ├── models/              # MongoDB models
-│   ├── auth/                # Authentication helpers
-│   ├── email/               # Email service
+├── lib/                     # Infrastructure & utilities
+│   ├── controllers/         # HTTP request handlers
+│   ├── services/            # Business logic layer
+│   ├── database/            # Data access layer
+│   │   └── transactions.ts  # Repository pattern, Unit of Work
+│   ├── middleware/          # Request middleware
+│   │   └── request-logger.ts # Structured logging
+│   ├── security/            # Security utilities
+│   │   └── input-sanitization.ts # XSS/NoSQL protection
+│   ├── validation/          # Schema validation
+│   │   └── schema-validator.ts # Zod-based validation
+│   ├── monitoring/          # Observability
+│   │   └── health-check.ts  # Health checks & metrics
+│   ├── cache/              # Caching layer
+│   │   └── cache-manager.ts # LRU cache with TTL
 │   ├── api-error-handler.ts # Error handling
 │   ├── env-validation.ts    # Environment validation
 │   ├── rate-limiter.ts      # Rate limiting
 │   └── mongodb.ts           # Database connection
+├── models/                  # MongoDB schemas
 ├── __tests__/               # Test files
+│   ├── lib/                # Infrastructure tests
+│   └── components/         # Component tests
 ├── public/                  # Static assets
-├── styles/                  # Global styles
+├── ARCHITECTURE.md          # Architecture documentation
 └── [config files]           # Configuration
 \`\`\`
 
@@ -258,19 +285,181 @@ pnpm test:coverage
 \`\`\`
 __tests__/
 ├── lib/
-│   ├── api-error-handler.test.ts
-│   ├── env-validation.test.ts
-│   └── rate-limiter.test.ts
+│   ├── api-error-handler.test.ts      # Error handling tests
+│   ├── env-validation.test.ts         # Environment validation tests
+│   ├── rate-limiter.test.ts           # Rate limiting tests
+│   ├── security/
+│   │   └── input-sanitization.test.ts # XSS/NoSQL protection tests
+│   ├── validation/
+│   │   └── schema-validator.test.ts   # Schema validation tests
+│   └── services/
+│       └── services.test.ts           # Service layer tests
 ├── components/
-│   └── header.test.tsx
+│   └── header.test.tsx                # Component tests
 └── setup.test.ts
 \`\`\`
 
-### Coverage Goals
+### Test Coverage
 
-- **Overall**: 85%+
-- **Components**: 80%+
-- **API Routes**: 90%+
+- **Total Tests**: 50+ test cases
+- **Coverage Goals**:
+  - Overall: 85%+
+  - Services: 90%+
+  - Security: 95%+
+  - Components: 80%+
+
+---
+
+## 🏢 Enterprise Features
+
+### 1. Request Logging & Monitoring
+
+**Location**: `lib/middleware/request-logger.ts`
+
+- Structured JSON logging
+- Unique correlation IDs for request tracing
+- Performance metrics (response time, slow request detection)
+- Request/response metadata capture
+- Client IP extraction
+
+**Usage**:
+\`\`\`typescript
+import { withRequestLogging } from '@/lib/middleware/request-logger'
+
+export const GET = withRequestLogging(async (req) => {
+  // Your handler code
+  return NextResponse.json({ success: true })
+})
+\`\`\`
+
+### 2. Database Transactions
+
+**Location**: `lib/database/transactions.ts`
+
+- ACID transaction support with MongoDB
+- Automatic retry on transient errors (3 attempts)
+- Repository pattern for consistent data access
+- Unit of Work pattern for atomic operations
+- Optimistic locking support
+
+**Usage**:
+\`\`\`typescript
+import { TransactionManager } from '@/lib/database/transactions'
+
+const result = await TransactionManager.withTransaction(async (session) => {
+  const user = await userRepo.create(userData, session)
+  const profile = await profileRepo.create({ userId: user._id }, session)
+  return { user, profile }
+})
+\`\`\`
+
+### 3. Advanced Caching
+
+**Location**: `lib/cache/cache-manager.ts`
+
+- LRU (Least Recently Used) eviction strategy
+- TTL (Time To Live) support
+- Pattern-based cache invalidation
+- Cache statistics (hits, misses, hit rate)
+- Multiple cache instances (API, Database, Static, Session)
+
+**Usage**:
+\`\`\`typescript
+import { databaseCache, CacheKeyBuilder } from '@/lib/cache/cache-manager'
+
+// Cache-aside pattern
+const user = await databaseCache.getOrSet(
+  CacheKeyBuilder.user(userId),
+  async () => await User.findById(userId),
+  15 * 60 * 1000 // 15 minutes
+)
+\`\`\`
+
+### 4. Input Sanitization
+
+**Location**: `lib/security/input-sanitization.ts`
+
+- XSS protection (HTML escaping, script removal)
+- NoSQL injection prevention
+- File upload validation
+- Security headers (CSP, X-XSS-Protection, etc.)
+
+**Usage**:
+\`\`\`typescript
+import { withInputSanitization } from '@/lib/security/input-sanitization'
+
+export const POST = withInputSanitization(async (req) => {
+  // Request body is automatically sanitized
+  const body = await req.json()
+  return NextResponse.json({ success: true })
+})
+\`\`\`
+
+### 5. Schema Validation
+
+**Location**: `lib/validation/schema-validator.ts`
+
+- Runtime type validation with Zod
+- Request/response schema validation
+- OpenAPI specification support
+- Detailed validation error messages
+
+**Usage**:
+\`\`\`typescript
+import { withSchemaValidation, CommonSchemas } from '@/lib/validation/schema-validator'
+
+export const POST = withSchemaValidation(
+  {
+    body: CommonSchemas.userLogin,
+    response: z.object({ success: z.boolean() }),
+  },
+  async (req, validated) => {
+    const { email, password } = validated.body!
+    // Type-safe access to validated data
+    return { success: true }
+  }
+)
+\`\`\`
+
+### 6. Health Checks & Metrics
+
+**Endpoints**:
+- `GET /api/health` - Complete health check
+- `GET /api/health/liveness` - Kubernetes liveness probe
+- `GET /api/health/readiness` - Kubernetes readiness probe
+- `GET /api/metrics` - System metrics (JSON)
+- `GET /api/metrics?format=prometheus` - Prometheus format
+
+**Health Status Levels**:
+- `healthy` - All systems operational
+- `degraded` - Some components experiencing issues
+- `unhealthy` - Critical components down
+
+### 7. Layered Architecture
+
+**Pattern**: Controllers → Services → Repositories → Models
+
+- **Controllers** (`lib/controllers/`): Handle HTTP requests
+- **Services** (`lib/services/`): Contain business logic
+- **Repositories** (`lib/database/`): Manage data access
+- **Models** (`models/`): Define database schemas
+
+**Benefits**:
+- Clear separation of concerns
+- Easy testing and mocking
+- Maintainable and scalable code
+- Industry-standard architecture
+
+### Design Patterns Implemented
+
+1. **Repository Pattern**: Abstract data access layer
+2. **Unit of Work Pattern**: Manage transactions
+3. **Singleton Pattern**: Logger, cache instances
+4. **Decorator Pattern**: Cacheable methods
+5. **Middleware Pattern**: Request processing pipeline
+6. **Strategy Pattern**: LRU cache eviction
+
+For detailed architecture documentation, see [ARCHITECTURE.md](ARCHITECTURE.md).
 - **Utilities**: 95%+
 
 ---

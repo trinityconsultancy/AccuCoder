@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import Groq from 'groq-sdk'
 import connectDB from '@/lib/mongodb'
 import DrugChemical from '@/lib/models/DrugChemical'
+import { sanitizeInput } from '@/lib/security/input-sanitization'
+import { logger } from '@/lib/middleware/request-logger'
 
 // Multiple API keys for rotation (add more as needed)
 const GROQ_API_KEYS = [
@@ -188,30 +190,81 @@ You: "Modifier 50 - Bilateral procedure"
 BE EXTREMELY BRIEF. Answer exactly what is asked, cite guidelines when relevant, add images ONLY for medical explanations. Use line breaks for clear presentation.`
 
 export async function POST(request: NextRequest) {
+  const correlationId = crypto.randomUUID()
+  
   try {
-    const { messages } = await request.json()
+    // Rate limiting check could be added here via middleware
+    
+    const rawBody = await request.json()
+    const { messages } = rawBody
+
+    // Validation
+    if (!Array.isArray(messages) || messages.length === 0) {
+      logger.warn('Invalid chat request: messages array missing or empty', { correlationId })
+      return NextResponse.json(
+        { error: 'Messages array is required and cannot be empty' },
+        { status: 400 }
+      )
+    }
+
+    // Validate each message
+    for (const msg of messages) {
+      if (!msg.text || typeof msg.text !== 'string') {
+        logger.warn('Invalid message format', { correlationId })
+        return NextResponse.json(
+          { error: 'Each message must have a text field' },
+          { status: 400 }
+        )
+      }
+      
+      // Prevent excessively long messages (XSS/DoS protection)
+      if (msg.text.length > 5000) {
+        logger.warn('Message too long', { correlationId, length: msg.text.length })
+        return NextResponse.json(
+          { error: 'Message too long (max 5000 characters)' },
+          { status: 400 }
+        )
+      }
+    }
+
+    // Sanitize messages (protect against injection)
+    const sanitizedMessages = messages.map((msg: any) => ({
+      ...msg,
+      text: sanitizeInput(msg.text),
+    }))
 
     if (GROQ_API_KEYS.length === 0) {
+      logger.error('GROQ API keys not configured', { correlationId })
       return NextResponse.json(
-        { error: 'GROQ_API_KEY is not configured' },
+        { error: 'AI service is not configured' },
         { status: 500 }
       )
     }
 
     // Extract the last user message to search the database
-    const lastUserMessage = messages[messages.length - 1]?.text || ''
+    const lastUserMessage = sanitizedMessages[sanitizedMessages.length - 1]?.text || ''
     
+    logger.info('Chat request received', {
+      correlationId,
+      messageCount: sanitizedMessages.length,
+      queryLength: lastUserMessage.length,
+    })
+
     // Search database for relevant drug/chemical codes
     let databaseContext = ''
     if (lastUserMessage.length > 2) {
       try {
         await connectDB()
+        
+        // Build safe regex query
+        const searchRegex = lastUserMessage.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+        
         const drugData = await DrugChemical.find({
           $or: [
-            { substance: { $regex: lastUserMessage, $options: 'i' } },
-            { poisoningAccidentalUnintentional: { $regex: lastUserMessage, $options: 'i' } },
-            { poisoningIntentionalSelfHarm: { $regex: lastUserMessage, $options: 'i' } },
-            { adverseEffect: { $regex: lastUserMessage, $options: 'i' } }
+            { substance: { $regex: searchRegex, $options: 'i' } },
+            { poisoningAccidentalUnintentional: { $regex: searchRegex, $options: 'i' } },
+            { poisoningIntentionalSelfHarm: { $regex: searchRegex, $options: 'i' } },
+            { adverseEffect: { $regex: searchRegex, $options: 'i' } }
           ]
         }).limit(5).lean()
 
@@ -219,16 +272,24 @@ export async function POST(request: NextRequest) {
           databaseContext = `\n\nRELEVANT DATABASE RESULTS:\n${drugData.map((row: any) => 
             `${row.substance}: Accidental Poisoning=${row.poisoningAccidentalUnintentional}, Intentional=${row.poisoningIntentionalSelfHarm}, Adverse Effect=${row.adverseEffect}`
           ).join('\n')}`
+          
+          logger.debug('Database context added', {
+            correlationId,
+            resultsCount: drugData.length,
+          })
         }
       } catch (dbError) {
-        console.error('Database search error:', dbError)
+        logger.error('Database search error', {
+          correlationId,
+          error: dbError instanceof Error ? dbError.message : 'Unknown error',
+        })
       }
     }
 
     // Prepare messages for Groq API
     const groqMessages = [
       { role: 'system', content: SYSTEM_PROMPT + databaseContext },
-      ...messages.map((msg: any) => ({
+      ...sanitizedMessages.map((msg: any) => ({
         role: msg.sender === 'user' ? 'user' : 'assistant',
         content: msg.text,
       })),
@@ -237,31 +298,55 @@ export async function POST(request: NextRequest) {
     // Get Groq client with rotating API key
     const groq = getGroqClient()
 
+    const startTime = Date.now()
     const completion = await groq.chat.completions.create({
-      model: 'llama-3.3-70b-versatile', // Fast and accurate model
+      model: 'llama-3.3-70b-versatile',
       messages: groqMessages as any,
-      temperature: 0.1, // Even lower for more precise, brief responses
-      max_tokens: 200, // Increased to allow for image URLs
+      temperature: 0.1,
+      max_tokens: 200,
       top_p: 0.8,
     })
+    const duration = Date.now() - startTime
 
     const botResponse = completion.choices[0]?.message?.content || 
       "I apologize, but I couldn't generate a response. Please try again."
 
-    return NextResponse.json({ response: botResponse })
+    logger.info('Chat response generated', {
+      correlationId,
+      duration,
+      tokenCount: completion.usage?.total_tokens || 0,
+      model: completion.model,
+    })
+
+    return NextResponse.json({ 
+      response: botResponse,
+      correlationId,
+    })
+
   } catch (error: any) {
-    console.error('Groq API Error:', error)
+    logger.error('Chat API error', {
+      correlationId,
+      error: error.message || 'Unknown error',
+      status: error.status,
+      stack: error.stack,
+    })
     
     // Check if it's a rate limit error
     if (error.status === 429 || error.message?.includes('rate limit') || error.message?.includes('quota')) {
       return NextResponse.json(
-        { error: 'AccuBot is currently experiencing high demand and is temporarily unavailable. Please try again in a few moments.' },
+        { 
+          error: 'AccuBot is currently experiencing high demand. Please try again in a few moments.',
+          correlationId,
+        },
         { status: 429 }
       )
     }
     
     return NextResponse.json(
-      { error: 'AccuBot is temporarily unavailable. Please try again shortly.' },
+      { 
+        error: 'AccuBot is temporarily unavailable. Please try again shortly.',
+        correlationId,
+      },
       { status: 500 }
     )
   }

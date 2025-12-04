@@ -6,5 +6,56 @@
   "framework": "nextjs",
   "outputDirectory": ".next",
   "trailingSlash": false,
-  "cleanUrls": false
+  "cleanUrls": false,
+  "env": {
+    "MONGODB_URI": "@mongodb_uri",
+    "JWT_SECRET": "@jwt_secret",
+    "GROQ_API_KEY": "@groq_api_key",
+    "GROQ_API_KEY_2": "@groq_api_key_2",
+    "GROQ_API_KEY_3": "@groq_api_key_3",
+    "BREVO_API_KEY": "@brevo_api_key",
+    "BREVO_SENDER_EMAIL": "@brevo_sender_email",
+    "BREVO_SENDER_NAME": "@brevo_sender_name",
+    "NEXT_PUBLIC_APP_URL": "https://accucoder.app"
+  },
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Strict-Transport-Security",
+          "value": "max-age=63072000; includeSubDomains; preload"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "SAMEORIGIN"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "geolocation=(), microphone=(), camera=()"
+        }
+      ]
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.accucoder.app"
+        }
+      ],
+      "destination": "https://accucoder.app/:path*",
+      "permanent": true
+    }
+  ]
 }

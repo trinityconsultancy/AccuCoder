@@ -1,118 +1,193 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { z } from 'zod'
 import connectDB from '@/lib/mongodb'
 import Review from '@/lib/models/Review'
+import { sanitizeInput } from '@/lib/security/input-sanitization'
+import { validateSchema } from '@/lib/validation/schema-validator'
+import { logger } from '@/lib/middleware/request-logger'
+import { databaseCache, CacheKeyBuilder } from '@/lib/cache/cache-manager'
+import { ValidationError } from '@/lib/api-error-handler'
+
+// Review submission schema
+const reviewSchema = z.object({
+  name: z.string()
+    .min(1, 'Name is required')
+    .max(100, 'Name too long')
+    .regex(/^[a-zA-Z\s'-]+$/, 'Name contains invalid characters'),
+  
+  email: z.string()
+    .email('Invalid email address')
+    .toLowerCase()
+    .max(100, 'Email too long'),
+  
+  role: z.string()
+    .min(1, 'Role is required')
+    .max(100, 'Role too long'),
+  
+  location: z.string()
+    .min(1, 'Location is required')
+    .max(100, 'Location too long'),
+  
+  country: z.string()
+    .min(1, 'Country is required')
+    .max(100, 'Country too long'),
+  
+  rating: z.number()
+    .int('Rating must be a whole number')
+    .min(1, 'Rating must be at least 1')
+    .max(5, 'Rating cannot exceed 5'),
+  
+  comment: z.string()
+    .min(10, 'Comment must be at least 10 characters')
+    .max(1000, 'Comment too long (max 1000 characters)'),
+})
 
 export async function POST(request: NextRequest) {
+  const correlationId = crypto.randomUUID()
+  
   try {
     await connectDB()
-    console.log('POST /api/reviews - Request received')
-    
-    const body = await request.json()
-    console.log('Request body:', { ...body, email: '***' }) // Log without exposing email
-    
-    const { name, email, role, location, country, rating, comment } = body
 
-    // Validate required fields
-    if (!name || !email || !role || !location || !country || !rating || !comment) {
-      console.error('Validation failed: Missing required fields')
-      return NextResponse.json(
-        { error: 'All fields are required', missingFields: {
-          name: !name,
-          email: !email,
-          role: !role,
-          location: !location,
-          country: !country,
-          rating: !rating,
-          comment: !comment
-        }},
-        { status: 400 }
-      )
-    }
+    // Parse and sanitize input
+    const rawBody = await request.json()
+    const sanitizedBody = sanitizeInput(rawBody)
 
-    // Validate rating
-    if (rating < 1 || rating > 5) {
-      console.error('Validation failed: Invalid rating')
-      return NextResponse.json(
-        { error: 'Rating must be between 1 and 5' },
-        { status: 400 }
-      )
-    }
-
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!emailRegex.test(email)) {
-      console.error('Validation failed: Invalid email format')
-      return NextResponse.json(
-        { error: 'Invalid email format' },
-        { status: 400 }
-      )
-    }
-
-    // Check if MongoDB is configured
-    if (!process.env.MONGODB_URI) {
-      console.error('MongoDB not configured')
-      return NextResponse.json(
-        { error: 'Database not configured. Please contact support.' },
-        { status: 503 }
-      )
-    }
-
-    console.log('Inserting review into database...')
-    
-    // Insert review into MongoDB
-    const review = await Review.create({
-      name,
-      email,
-      role,
-      location,
-      country,
-      rating,
-      comment,
-      status: 'pending'
+    logger.info('Review submission attempt', {
+      correlationId,
+      ipAddress: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown',
     })
 
-    console.log('Review submitted successfully:', review)
-    
-    return NextResponse.json(
-      { message: 'Review submitted successfully', data: review },
-      { status: 201 }
-    )
+    // Validate request data
+    const validationResult = await validateSchema(reviewSchema, sanitizedBody)
+    if (!validationResult.success) {
+      logger.warn('Review validation failed', {
+        correlationId,
+        errors: validationResult.errors,
+      })
+      
+      return NextResponse.json({
+        error: validationResult.errors[0]?.message || 'Invalid input',
+        errors: validationResult.errors,
+      }, { status: 400 })
+    }
+
+    const data = validationResult.data
+
+    // Create review
+    const review = await Review.create({
+      name: data.name,
+      email: data.email,
+      role: data.role,
+      location: data.location,
+      country: data.country,
+      rating: data.rating,
+      comment: data.comment,
+      status: 'pending',
+    })
+
+    logger.info('Review submitted successfully', {
+      correlationId,
+      reviewId: review._id.toString(),
+      rating: review.rating,
+    })
+
+    // Invalidate review cache
+    await databaseCache.deletePattern('reviews:*')
+
+    return NextResponse.json({
+      message: 'Review submitted successfully',
+      data: {
+        id: review._id,
+        status: review.status,
+      },
+    }, { status: 201 })
+
   } catch (error) {
-    console.error('Error submitting review:', error)
-    return NextResponse.json(
-      { error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' },
-      { status: 500 }
-    )
+    logger.error('Review submission error', {
+      correlationId,
+      error: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+    })
+
+    if (error instanceof ValidationError) {
+      return NextResponse.json({
+        error: error.message,
+      }, { status: 400 })
+    }
+
+    return NextResponse.json({
+      error: 'Failed to submit review. Please try again.',
+    }, { status: 500 })
   }
 }
 
 export async function GET(request: NextRequest) {
+  const correlationId = crypto.randomUUID()
+  
   try {
     await connectDB()
+    
     const { searchParams } = new URL(request.url)
     const status = searchParams.get('status')
-    const admin = searchParams.get('admin') // admin=true fetches all reviews
+    const admin = searchParams.get('admin')
 
+    // Build cache key based on query parameters
+    const cacheKey = CacheKeyBuilder.generic(
+      'reviews',
+      `status:${status || 'approved'}-admin:${admin || 'false'}`
+    )
+
+    // Try cache first
+    const cachedReviews = await databaseCache.get(cacheKey) as any[] | null
+    if (cachedReviews) {
+      logger.debug('Reviews retrieved from cache', {
+        correlationId,
+        cacheKey,
+        count: cachedReviews.length,
+      })
+      
+      return NextResponse.json({
+        reviews: cachedReviews,
+        cached: true,
+      }, { status: 200 })
+    }
+
+    // Build query
     let query: any = {}
-
-    // If admin parameter is not set, only return approved reviews by default
+    
     if (!admin) {
       query.status = 'approved'
     }
-
-    // If status is specified, filter by that status (overrides admin default)
+    
     if (status) {
       query.status = status
     }
 
+    // Fetch from database
     const reviews = await Review.find(query).sort({ createdAt: -1 }).lean()
 
-    return NextResponse.json({ reviews }, { status: 200 })
+    logger.info('Reviews fetched from database', {
+      correlationId,
+      count: reviews.length,
+      status: query.status,
+    })
+
+    // Cache the results (5 minutes)
+    await databaseCache.set(cacheKey, reviews, 300)
+
+    return NextResponse.json({
+      reviews,
+      cached: false,
+    }, { status: 200 })
+
   } catch (error) {
-    console.error('Error fetching reviews:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+    logger.error('Review fetch error', {
+      correlationId,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    })
+
+    return NextResponse.json({
+      error: 'Failed to fetch reviews',
+    }, { status: 500 })
   }
 }
