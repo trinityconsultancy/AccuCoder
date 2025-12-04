@@ -215,10 +215,11 @@ export async function POST(request: NextRequest) {
       }, { status: 400 })
     }
 
-    // Return detailed error message for debugging
+    // Return detailed error message for debugging (temporarily enabled for production debugging)
     return NextResponse.json({
       error: 'Failed to create account. Please try again.',
-      details: process.env.NODE_ENV === 'development' ? (error instanceof Error ? error.message : String(error)) : undefined,
+      details: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack?.split('\n').slice(0, 3).join('\n') : undefined,
     }, { status: 500 })
   }
 }
