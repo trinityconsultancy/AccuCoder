@@ -8,15 +8,15 @@
   "trailingSlash": false,
   "cleanUrls": false,
   "env": {
-    "MONGODB_URI": "@mongodb_uri",
-    "JWT_SECRET": "@jwt_secret",
-    "GROQ_API_KEY": "@groq_api_key",
-    "GROQ_API_KEY_2": "@groq_api_key_2",
-    "GROQ_API_KEY_3": "@groq_api_key_3",
-    "BREVO_API_KEY": "@brevo_api_key",
-    "BREVO_SENDER_EMAIL": "@brevo_sender_email",
-    "BREVO_SENDER_NAME": "@brevo_sender_name",
-    "NEXT_PUBLIC_APP_URL": "https://accucoder.app"
+    "MONGODB_URI": "mongodb://atlas-sql-693028d95ad227472f7b7c1a-phxzom.g.query.mongodb.net/accucoder?ssl=true&authSource=admin",
+    "JWT_SECRET": "29e8d9acd6db60a18d6b7499cc91c0fb06811f1d8b96ccec6b59d483d1c0623b",
+    "BREVO_SMTP_HOST": "smtp-relay.brevo.com",
+    "BREVO_SMTP_PORT": "587",
+    "BREVO_SMTP_USER": "9d34fa001@smtp-brevo.com",
+    "BREVO_SMTP_PASSWORD": "nS5NB3dcqEmP6DgG",
+    "FROM_EMAIL": "accucoder.app@gmail.com",
+    "FROM_NAME": "AccuCoder",
+    "NEXT_PUBLIC_APP_URL": "https://www.accucoder.app"
   },
   "headers": [
     {
