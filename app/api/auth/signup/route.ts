@@ -78,11 +78,17 @@ export async function POST(request: NextRequest) {
   const correlationId = crypto.randomUUID()
   
   try {
+    console.log('[SIGNUP] Starting signup process', { correlationId })
+    
     await connectDB()
+    console.log('[SIGNUP] Database connected', { correlationId })
 
     // Parse and sanitize input
     const rawBody = await request.json()
+    console.log('[SIGNUP] Request body parsed', { correlationId, hasEmail: !!rawBody.email })
+    
     const sanitizedBody = sanitizeInput(rawBody)
+    console.log('[SIGNUP] Input sanitized', { correlationId })
 
     logger.info('Signup attempt', {
       correlationId,
@@ -93,6 +99,10 @@ export async function POST(request: NextRequest) {
     // Validate request data
     const validationResult = await validateSchema(signupSchema, sanitizedBody)
     if (!validationResult.success) {
+      console.error('[SIGNUP] Validation failed', {
+        correlationId,
+        errors: validationResult.errors,
+      })
       logger.warn('Signup validation failed', {
         correlationId,
         errors: validationResult.errors,
@@ -105,10 +115,13 @@ export async function POST(request: NextRequest) {
     }
 
     const data = validationResult.data
+    console.log('[SIGNUP] Validation passed', { correlationId, email: data.email })
 
     // Check if user already exists
+    console.log('[SIGNUP] Checking for existing user', { correlationId, email: data.email })
     const existingUser = await User.findOne({ email: data.email })
     if (existingUser) {
+      console.log('[SIGNUP] Email already registered', { correlationId, email: data.email })
       logger.warn('Signup failed: Email already registered', {
         correlationId,
         email: data.email,
@@ -120,13 +133,16 @@ export async function POST(request: NextRequest) {
     }
 
     // Hash password
+    console.log('[SIGNUP] Hashing password', { correlationId })
     const hashedPassword = await hashPassword(data.password)
+    console.log('[SIGNUP] Password hashed', { correlationId })
 
     // Generate verification token
     const verificationToken = generateRandomToken()
     const verificationTokenExpiry = getTokenExpiry(48) // 48 hours
 
     // Create user (email NOT verified yet)
+    console.log('[SIGNUP] Creating user', { correlationId, email: data.email })
     const user = await User.create({
       email: data.email,
       password: hashedPassword,
@@ -143,6 +159,11 @@ export async function POST(request: NextRequest) {
       role: 'user',
     })
 
+    console.log('[SIGNUP] User created successfully', {
+      correlationId,
+      userId: user._id.toString(),
+      email: user.email,
+    })
     logger.info('User account created', {
       correlationId,
       userId: user._id.toString(),
@@ -175,6 +196,13 @@ export async function POST(request: NextRequest) {
     }, { status: 201 })
 
   } catch (error) {
+    console.error('[SIGNUP] Error occurred', {
+      correlationId,
+      error: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+      name: error instanceof Error ? error.name : 'Unknown',
+    })
+    
     logger.error('Signup error', {
       correlationId,
       error: error instanceof Error ? error.message : 'Unknown error',
@@ -187,8 +215,10 @@ export async function POST(request: NextRequest) {
       }, { status: 400 })
     }
 
+    // Return detailed error message for debugging
     return NextResponse.json({
       error: 'Failed to create account. Please try again.',
+      details: process.env.NODE_ENV === 'development' ? (error instanceof Error ? error.message : String(error)) : undefined,
     }, { status: 500 })
   }
 }

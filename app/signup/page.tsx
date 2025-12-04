@@ -140,9 +140,17 @@ export default function SignUpPage() {
       const data = await response.json()
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to sign up')
+        console.error('Signup failed:', {
+          status: response.status,
+          statusText: response.statusText,
+          error: data.error,
+          details: data.details,
+          errors: data.errors,
+        })
+        throw new Error(data.error || data.details || 'Failed to sign up')
       }
 
+      console.log('Signup successful:', data)
       setSuccess(true)
       // Redirect to login after 2 seconds
       setTimeout(() => {
