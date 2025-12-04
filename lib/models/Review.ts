@@ -10,6 +10,9 @@ export interface IReview {
   rating: number
   comment: string
   status: 'pending' | 'approved' | 'rejected'
+  moderatedBy?: string
+  moderatedAt?: Date
+  moderatorNotes?: string
   createdAt: Date
   updatedAt: Date
 }
@@ -57,6 +60,19 @@ const ReviewSchema = new Schema<IReview>(
       type: String,
       enum: ['pending', 'approved', 'rejected'],
       default: 'pending',
+    },
+    moderatedBy: {
+      type: String,
+      required: false,
+    },
+    moderatedAt: {
+      type: Date,
+      required: false,
+    },
+    moderatorNotes: {
+      type: String,
+      required: false,
+      trim: true,
     },
   },
   {
